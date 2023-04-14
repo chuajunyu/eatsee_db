@@ -12,4 +12,4 @@ class ConfigManagerTest(unittest.TestCase):
     def test_get_basecase(self):
         result = self.config.get("database_host")
         self.assertEqual(type(result), str, 
-            "ConfigManager object did not return string format object")
+            "ConfigManager : get did not return string format object")

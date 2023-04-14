@@ -21,12 +21,18 @@ class Database(Singleton):
                 password=config.get("password")
                 )
         
-    def execute(self, query):
+    def execute_select(self, *query):
         cursor = self.conn.cursor()
-        cursor.execute(query)
+        cursor.execute(*query)
         records = cursor.fetchall()
+        cursor.close()
         return records
     
+    def execute_change(self, *query):
+        cursor = self.conn.cursor()
+        cursor.execute(*query)
+        self.conn.commit()
+        cursor.close()
 
 
 if __name__ == "__main__":

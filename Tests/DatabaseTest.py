@@ -10,6 +10,6 @@ class DatabaseTest(unittest.TestCase):
         cls.db = Database()
 
     def test_execute_basecase(self):
-        result = self.db.execute("SELECT * FROM users")
+        result = self.db.execute_select("SELECT * FROM users")
         self.assertEqual(type(result), list, 
-            "Database object does not return list format object")
+            "Database: execute_select does not return list format object")
