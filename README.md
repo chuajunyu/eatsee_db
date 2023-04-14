@@ -35,7 +35,14 @@ Welcome to Eatsee DB
 
 5. Refer to the IP addresses provided in terminal for SwaggerUI API Documentation 
 
-Contribution Instructions:
+
+
+## Running Test Cases
+
+`python -m unittest Tests`
+
+
+## Contribution Instructions
 
 - Write compact testable code with unit tests
 - Atomic Commits (Small git commits that are well named)

@@ -4,8 +4,10 @@ from Classes import MainController
 
 
 class MainControllerTest(unittest.TestCase):
-    def __init__(self):
-        self.mc = MainController()
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mc = MainController()
 
     def test_select_user(self):
         pass
