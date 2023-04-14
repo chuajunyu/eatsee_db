@@ -26,9 +26,14 @@ Welcome to Eatsee DB
     pip install -r requirements.txt
     ```
 
-4. Run `test.py`
+4. Run `uvicorn main:app --reload`
+
+    `main` refers to the name of the script `main.py`
+    `app` refers to the name of the FastAPI object `app`
+    `--reload` means that the API will reload automatically when the code changes, useful for development, DO NOT DEPLOY
 
 
+5. Refer to the IP addresses provided in terminal for SwaggerUI API Documentation 
 
 Contribution Instructions:
 
