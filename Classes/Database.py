@@ -3,17 +3,17 @@ import psycopg2
 from .ConfigManager import ConfigManager
 
 
-class Singleton(object):
-    _instance = None
-    def __new__(class_, *args, **kwargs):
-        if not isinstance(class_._instance, class_):
-            class_._instance = object.__new__(class_, *args, **kwargs)
-        return class_._instance
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-class Database(Singleton):
+class Database(metaclass = Singleton):
     def __init__(self):
-        config = ConfigManager._instance
+        config = ConfigManager()
         self.conn = psycopg2.connect(
                 host=config.get("database_host"),
                 database=config.get("database_name"),
@@ -33,10 +33,3 @@ class Database(Singleton):
         cursor.execute(*query)
         self.conn.commit()
         cursor.close()
-
-
-if __name__ == "__main__":
-    ConfigManager(path=r"dev.config")
-    db = Database()
-    print(db.execute("SELECT * FROM users"))
-
