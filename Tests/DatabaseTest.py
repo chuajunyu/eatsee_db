@@ -9,7 +9,10 @@ class DatabaseTest(unittest.TestCase):
     def setUpClass(cls):
         cls.db = Database()
 
-    def test_execute_basecase(self):
+    def test_execute_select_basecase(self):
         result = self.db.execute_select("SELECT * FROM users")
         self.assertEqual(type(result), list, 
             "Database: execute_select does not return list format object")
+
+    def test_execute_change_basecase(self):
+        pass
