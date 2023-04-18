@@ -30,22 +30,27 @@ async def create_user(user: User):
 class Telename(BaseModel):
     telename: str
 
+@app.post("/get_user_id/")
+async def get_user_id(telename: Telename):
+    return mc.get_user_id(telename.telename)
+
 class Preferences(BaseModel):
+    telename:str
     preferences: list[int]
 
 
 @app.post("/change_age_preferences/")
-async def change_age_preferences(telename: Telename, preferences: Preferences):
-    return mc.change_age_pref(telename.telename, preferences.preferences, "age_ref", "age_ref_id")
-
-@app.post("/change_cuisine_preferences/")
-async def change_cuisine_preferences(telename: Telename, preferences: Preferences):
-    return mc.change_cuisine_pref(telename.telename, preferences.preferences, "cuisine_ref", "cuisine_ref_id")
-
-@app.post("/change_diet_preferences/")
-async def change_diet_preferences(telename: Telename, preferences: Preferences):
-    return mc.change_diet_pref(telename.telename, preferences.preferences, "diet_ref", "diet_ref_id")
+async def change_age_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref", "age_ref_id")
 
 @app.post("/change_gender_preferences/")
-async def change_diet_preferences(telename: Telename, preferences: Preferences):
-    return mc.change_diet_pref(telename.telename, preferences.preferences, "gender_ref", "gender_ref_id")
+async def change_diet_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref", "gender_ref_id")
+
+@app.post("/change_cuisine_preferences/")
+async def change_cuisine_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref", "cuisine_ref_id")
+
+@app.post("/change_diet_preferences/")
+async def change_diet_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref", "diet_ref_id")

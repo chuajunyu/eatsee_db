@@ -19,6 +19,7 @@ class MainController:
         Returns:
             - List containing users with that telename.
         """
+        print(self.qm.select_user(telename))
         return self.qm.select_user(telename)
 
     def insert_user(self, availability: bool, telename: str, age: int, gender: int):
@@ -34,17 +35,38 @@ class MainController:
             - Dictionary containing message
         """
         if self.qm.select_user(telename):  # Check if user alr exists
-            return {"message": "User Creation Failed: User already Exists"}
+            return {
+                "code": 405,
+                "message": "User Creation Failed: User already Exists"
+                }
         self.qm.insert_user(availability, telename, age, gender)
-        return {"message": "User Successfully Created"}
+        return {
+            "code": 200,
+            "message": "User Successfully Created"
+            }
     
     def get_user_id(self, telename):
-        return self.qm.get_user_id(telename)[0][0]
+        # if invalid telename, user_id = []
+        user_id = self.qm.get_user_id(telename)
+        if len(user_id) == 0:
+            return {
+                "code": 404, 
+                "message": f"invalid user: {telename}"
+            }
+        # if user_id is not Integer
+        if not isinstance(user_id[0][0], int):
+            return {
+                "code": 404, 
+                "message": f"invalid user id: {user_id}"
+            }
+        return user_id[0][0]
     
     def change_pref(self, telename, new_pref, table, column):
-        
         # get user_id
         user_id = self.get_user_id(telename)
+        # returns error if invalid telename or invalid user id
+        if not isinstance(user_id, int):
+            return user_id
 
         # select old pref type list[tuple]
         old_pref = self.qm.select_pref(user_id, table, column)
@@ -67,16 +89,14 @@ class MainController:
         for each_pref in addpref:
             self.qm.add_pref(user_id, each_pref, table)
 
-        # add return value
-
-    def change_age_pref(self, telename, preferences, table, column):
-        return self.change_pref(telename, preferences, table, column)
-    
-    def change_cuisine_pref(self, telename, preferences, table, column):
-        return self.change_pref(telename, preferences, table, column)
-    
-    def change_diet_pref(self, telename, preferences, table, column):
-        return self.change_pref(telename, preferences, table, column)
-    
-    def change_gender_pref(self, telename, preferences, table, column):
-        return self.change_pref(telename, preferences, table, column)
+        return {
+            "code": 201,
+            "message" : f"{table} preferences successfully updated",
+            "data" : {
+            "prefence type": table, 
+            "old prefs": old_pref, 
+            "deleted prefs": dltpref, 
+            "added prefs": addpref, 
+            "new prefs": new_pref
+            }
+        }
