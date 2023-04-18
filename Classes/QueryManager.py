@@ -40,7 +40,7 @@ class QueryManager:
                             (might be deprecated)
             - telename: Telegram username of new user to be inserted
         """
-        query = """INSERT INTO users (availability, telename, age, gender)
+        query = """INSERT INTO users (availability, telename, age_ref_id, gender_ref_id)
                 VALUES (%s, %s, %s, %s)"""
         data = (availability, telename, age, gender)
         self.db.execute_change(query, data)
@@ -52,14 +52,13 @@ class QueryManager:
         return record
 
     def select_pref(self, user_id, table, column):
-        query = f"SELECT {column} FROM {table} WHERE user_id = %s"
+        query = f"SELECT {column} FROM {table} WHERE user_ref_id = %s"
         data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
-    # turn list(dltpref) into tuple DONE
-    def dlt_pref(self, user_id, dltpref, table):
-        query = f"DELETE FROM {table} WHERE userref_id = %s AND ageref_id in %s"
+    def dlt_pref(self, user_id, dltpref, table, column):
+        query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} in %s"
         data = (user_id, dltpref)
         self.db.execute_change(query, data)
     

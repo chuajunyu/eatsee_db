@@ -38,44 +38,36 @@ class MainController:
         self.qm.insert_user(availability, telename, age, gender)
         return {"message": "User Successfully Created"}
     
-
     def get_user_id(self, telename):
-        return self.qm.get_user_id(telename)
+        return self.qm.get_user_id(telename)[0][0]
     
-
-    def change_pref(self, telename, preferences, table, column):
+    def change_pref(self, telename, new_pref, table, column):
         
         # get user_id
-        user_id_record = self.get_user_id(telename)
-        user_id = user_id_record[0][0]
+        user_id = self.get_user_id(telename)
 
         # select old pref type list[tuple]
-        old_age_pref1 = self.qm.select_pref(user_id, table, column)
+        old_pref = self.qm.select_pref(user_id, table, column)
+        old_pref = [pref[0] for pref in old_pref]
 
-        # get new pref type:list[int]
-        new_age_pref = preferences
-
-        old_age_pref2 = []
         dltpref = []
         addpref = []
 
-        for row in old_age_pref1:
-            old_age_pref2.append(row[0])
-        
-        # delete old prefs
-        for each_pref in old_age_pref2:
-            if each_pref not in new_age_pref:
-                dltpref.append(each_pref)
-        
-        # add new pref
-        for each_pref in new_age_pref:
-            if each_pref not in old_age_pref2:
-                addpref.append(each_pref)
+        for pref_id in old_pref:
+            if pref_id not in new_pref:
+                dltpref.append(pref_id)
 
-        self.qm.dlt_pref(user_id, tuple(dltpref), table)
+        for pref_id in new_pref:
+            if pref_id not in old_pref:
+                addpref.append(pref_id)
+
+        if dltpref:
+            self.qm.dlt_pref(user_id, tuple(dltpref), table, column)
 
         for each_pref in addpref:
             self.qm.add_pref(user_id, each_pref, table)
+
+        # add return value
 
     def change_age_pref(self, telename, preferences, table, column):
         return self.change_pref(telename, preferences, table, column)
@@ -84,4 +76,7 @@ class MainController:
         return self.change_pref(telename, preferences, table, column)
     
     def change_diet_pref(self, telename, preferences, table, column):
+        return self.change_pref(telename, preferences, table, column)
+    
+    def change_gender_pref(self, telename, preferences, table, column):
         return self.change_pref(telename, preferences, table, column)

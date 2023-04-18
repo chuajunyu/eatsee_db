@@ -21,7 +21,7 @@ class QueryManagerTest(unittest.TestCase):
         
     def test_insert_user_basecase(self):
         before = len(self.qm.select_user("Tom123"))
-        self.qm.insert_user(True, 'Tom123')
+        self.qm.insert_user(True, 'Tom123', 1, 1)
         after = len(self.qm.select_user("Tom123"))
         self.assertEqual(after-before, 1, 
             "QueryManager: insert_user did not insert successfully")
