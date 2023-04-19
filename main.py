@@ -34,6 +34,19 @@ class Telename(BaseModel):
 async def get_user_id(telename: Telename):
     return mc.get_user_id(telename.telename)
 
+@app.post("/queue/")
+async def queue(telename: Telename):
+    return mc.queue(telename.telename)
+
+@app.post("/dequeue/")
+async def deueue(telename: Telename):
+    return mc.dequeue(telename.telename)
+
+@app.post("/match/")
+async def match(telename: Telename):
+    return mc.person_match(telename.telename)
+
+
 class Preferences(BaseModel):
     telename:str
     preferences: list[int]

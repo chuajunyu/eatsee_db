@@ -61,6 +61,23 @@ class MainController:
             }
         return user_id[0][0]
     
+    def get_user_info(self, telename, column, table):
+        # if invalid telename, user_id = []
+        user_info = self.qm.get_user_info(telename)
+        if len(user_info) == 0:
+            return {
+                "code": 404, 
+                "message": f"invalid user: {telename}"
+            }
+        return user_info[0][0]
+    
+
+    
+    def select_pref(self, telename, table, column):
+        user_id = self.get_user_id(telename)
+        return self.qm.select_pref(user_id, table, column)
+    
+
     def change_pref(self, telename, new_pref, table, column):
         # get user_id
         user_id = self.get_user_id(telename)
@@ -99,4 +116,45 @@ class MainController:
             "added prefs": addpref, 
             "new prefs": new_pref
             }
+        }
+
+    # queue
+    def queue(self, telename):
+        user_id = self.get_user_id(telename)
+        self.qm.queue(user_id)
+        return {
+            "code": 200,
+            "message": f"{telename} successfully queued"
+        }
+    
+    def dequeue(self, telename):
+        user_id = self.get_user_id(telename)
+        self.qm.dequeue(user_id)
+        return {
+            "code": 200,
+            "message": f"{telename} successfully dequeued"
+        }
+
+
+    # given preferences
+    def person_match(self, telename):
+        user_id = self.get_user_id(telename)
+        age_pref = self.qm.select_pref(user_id, "age_ref", "age_ref_id")
+        gender_pref = self.qm.select_pref(user_id, "gender_ref", "gender_ref_id")
+        queue_users = self.qm.select_queue_users()
+
+        if not age_pref:
+            age_pref = [1,2,3,4,5,6]       # populate with all choices
+        if not gender_pref:
+            gender_pref = [1,2,3]    # populate with all choices
+
+        matches_A = self.qm.person_match_A(user_id, age_pref, gender_pref)
+
+        primary_age = self.qm.get_user_info(telename, "age_ref_id", "users")[0][0]
+        primary_gender = self.qm.get_user_info(telename, "gender_ref_id", "users")[0][0]
+
+        matches_B = self.qm.person_match_B(matches_A, primary_age, primary_gender)
+
+        return {
+            "matches": matches_B
         }
