@@ -63,7 +63,7 @@ class MainController:
     
     def get_user_info(self, telename, column, table):
         # if invalid telename, user_id = []
-        user_info = self.qm.get_user_info(telename)
+        user_info = self.qm.get_user_info(telename, column, table)
         if len(user_info) == 0:
             return {
                 "code": 404, 
@@ -71,7 +71,39 @@ class MainController:
             }
         return user_info[0][0]
     
+    def show_profile(self, telename):
+        user_id = self.get_user_id(telename)
+        age = self.get_user_info(telename, "age_ref_id", "users")
+        gender = self.get_user_info(telename, "gender_ref_id", "users")
+        age_pref = self.qm.select_pref(user_id,  "age_ref", "age_ref_id")
+        gender_pref = self.qm.select_pref(user_id,  "gender_ref", "gender_ref_id")
+        cuisine_pref = self.qm.select_pref(user_id,  "cuisine_ref", "cuisine_ref_id")
+        diet_pref = self.qm.select_pref(user_id,  "diet_ref", "diet_ref_id")
+        return {
+            "code": 200,
+            "message": "profile successfully acquired",
+            "data": {
+            "telename": telename,
+            "age": age,
+            "gender": gender,
+            "age pref": [pref[0] for pref in age_pref],
+            "gender pref": [pref[0] for pref in gender_pref],
+            "cuisine pref": [pref[0] for pref in cuisine_pref],
+            "diet pref": [pref[0] for pref in diet_pref]
+            }
+        }
+    
+    def show_choices(self, column, table):
+        choices = self.qm.get_info(column, table)
+        return [choice[0] for choice in choices]
 
+    def show_all_choices(self):
+        return {
+            "age": self.show_choices("age_range", "age"),
+            "gender": self.show_choices("gender", "gender"),
+            "cuisine": self.show_choices("cuisine", "cuisine"),
+            "diet": self.show_choices("diet_res_type", "diet"),
+        }
     
     def select_pref(self, telename, table, column):
         user_id = self.get_user_id(telename)
@@ -110,7 +142,7 @@ class MainController:
             "code": 201,
             "message" : f"{table} preferences successfully updated",
             "data" : {
-            "prefence type": table, 
+            "pref type": table, 
             "old prefs": old_pref, 
             "deleted prefs": dltpref, 
             "added prefs": addpref, 

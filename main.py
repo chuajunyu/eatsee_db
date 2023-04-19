@@ -26,9 +26,12 @@ async def create_user(user: User):
     return mc.insert_user(user.availability, user.telename, user.age, user.gender)
 
 
-# Go make this into a single class  so its nicer
 class Telename(BaseModel):
     telename: str
+
+@app.post("/show_profile/")
+async def show_profile(telename: Telename):
+    return mc.show_profile(telename.telename)
 
 @app.post("/get_user_id/")
 async def get_user_id(telename: Telename):
@@ -67,3 +70,26 @@ async def change_cuisine_preferences(preferences: Preferences):
 @app.post("/change_diet_preferences/")
 async def change_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref", "diet_ref_id")
+
+
+
+@app.post("/show_age_choices/")
+async def show_choices():
+    return mc.show_choices("age_range", "age")
+
+@app.post("/show_gender_choices/")
+async def show_choices():
+    return mc.show_choices("gender", "gender")
+
+@app.post("/show_cuisine_choices/")
+async def show_choices():
+    return mc.show_choices("cuisine", "cuisine")
+
+@app.post("/show_diet_choices/")
+async def show_choices():
+    return mc.show_choices("diet_res_type", "diet")
+
+@app.post("/show_all_choices/")
+async def show_choices():
+    return mc.show_all_choices()
+

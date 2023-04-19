@@ -56,6 +56,11 @@ class QueryManager:
         data = (telename,)
         record = self.db.execute_select(query, data)
         return record
+    
+    def get_info(self, column, table):
+        query = f"SELECT {column} FROM {table}"
+        record = self.db.execute_select(query)
+        return record
 
     # preference functions
 
