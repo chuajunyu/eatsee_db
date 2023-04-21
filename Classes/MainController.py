@@ -43,7 +43,7 @@ class MainController:
         self.qm.insert_user(availability, telename, age, gender)
         return {
             "code": 200,
-            "message": "User Successfully Created",
+            "message": f"User {telename} Successfully Created",
             "data": None
             }
     
@@ -60,7 +60,7 @@ class MainController:
             return {
                 "code": 200, 
                 "message": f"{telename}'s user id obtained",
-                "data": user_id[0][0]
+                "data": user_id[0]
             }
         
     
@@ -73,7 +73,7 @@ class MainController:
                 "message": f"invalid user: {telename}",
                 "data": None
             }
-        return user_info[0][0]
+        return user_info
     
     def show_profile(self, telename):
         # check if valid telename  
@@ -81,14 +81,14 @@ class MainController:
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
         
-        age = self.get_user_info(telename, "age_ref_id", "users")
-        gender = self.get_user_info(telename, "gender_ref_id", "users")
-        age_pref = self.qm.select_pref(user_id,  "age_ref", "age_ref_id")
-        gender_pref = self.qm.select_pref(user_id,  "gender_ref", "gender_ref_id")
-        cuisine_pref = self.qm.select_pref(user_id,  "cuisine_ref", "cuisine_ref_id")
-        diet_pref = self.qm.select_pref(user_id,  "diet_ref", "diet_ref_id")
+        age = self.get_user_info(telename, "age_ref_id", "users")[0]["age_ref_id"]
+        gender = self.get_user_info(telename, "gender_ref_id", "users")[0]["gender_ref_id"]
+        age_pref = self.qm.select_pref(user_id, "age_ref_id",  "age_ref")
+        gender_pref = self.qm.select_pref(user_id, "gender_ref_id", "gender_ref")
+        cuisine_pref = self.qm.select_pref(user_id, "cuisine_ref_id", "cuisine_ref")
+        diet_pref = self.qm.select_pref(user_id, "diet_ref_id", "diet_ref")
         return {
             "code": 200,
             "message": "profile successfully acquired",
@@ -96,17 +96,17 @@ class MainController:
             "telename": telename,
             "age": age,
             "gender": gender,
-            "age pref": [pref[0] for pref in age_pref],
-            "gender pref": [pref[0] for pref in gender_pref],
-            "cuisine pref": [pref[0] for pref in cuisine_pref],
-            "diet pref": [pref[0] for pref in diet_pref]
+            "age pref": [pref["age_ref_id"] for pref in age_pref],
+            "gender pref": [pref["gender_ref_id"] for pref in gender_pref],
+            "cuisine pref": [pref["cuisine_ref_id"] for pref in cuisine_pref],
+            "diet pref": [pref["diet_ref_id"] for pref in diet_pref]
             }
         }
     
     # CHOICE
     def show_choices_template(self, column, table):
         choices = self.qm.get_info(column, table)
-        return [choice[0] for choice in choices]
+        return [row[column] for row in choices]
     
     def show_one_choice(self, column, table):
         choices = self.qm.get_info(column, table)
@@ -137,28 +137,28 @@ class MainController:
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
         
         return {
             "code": 200,
             "message": f"successfully selected {table[:-4]} preferences",
-            "data": [pref[0] for pref in self.qm.select_pref(user_id, column, table)]
+            "data": [row[column] for row in self.qm.select_pref(user_id, column, table)]
         }
 
     
     def change_pref(self, telename, new_pref, column, table, adding, deleting):
-        # check if valid telename        
+        # check if valid telename  
         user_id = self.get_user_id(telename)
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
 
         # check if valid preference
         map_table = table[:-4]
         map_column = f"{map_table}_id"
         map_result_tuple = self.qm.get_info(map_column, map_table)
-        map_result_list = [result[0] for result in map_result_tuple]
+        map_result_list = [row[map_column] for row in map_result_tuple]
         for pref in new_pref:
             if pref not in map_result_list:
                 return {
@@ -169,7 +169,7 @@ class MainController:
 
         # select old pref type list[tuple]
         old_pref = self.qm.select_pref(user_id, column, table)
-        old_pref = [pref[0] for pref in old_pref]
+        old_pref = [row[column] for row in old_pref]
 
         addpref = []
         dltpref = []
@@ -241,11 +241,11 @@ class MainController:
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
 
         # check if user already in queue
         user_id_queued = self.qm.get_info("user_id", "queue")
-        user_id_queued_list = [user_id[0] for user_id in user_id_queued]
+        user_id_queued_list = [row["user_id"] for row in user_id_queued]
         if user_id in user_id_queued_list:
             return {
             "code": 404,
@@ -266,7 +266,7 @@ class MainController:
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
 
         self.qm.dequeue(user_id)
         return {
@@ -282,10 +282,12 @@ class MainController:
         if not user_id["data"]:
             return user_id
         else:
-            user_id = user_id["data"]
+            user_id = user_id["data"]["user_id"]
 
         age_pref = self.qm.select_pref(user_id, "age_ref_id", "age_ref")
+        age_pref = [row["age_ref_id"] for row in age_pref]
         gender_pref = self.qm.select_pref(user_id, "gender_ref_id", "gender_ref")
+        gender_pref = [row["gender_ref_id"] for row in gender_pref]
         queue_users = self.qm.select_queue_users()
 
         if not age_pref:
@@ -294,9 +296,10 @@ class MainController:
             gender_pref = [1,2,3]    # populate with all choices
 
         matches_A = self.qm.person_match_A(user_id, age_pref, gender_pref)
+        matches_A = [row["user_id"] for row in matches_A]
 
-        primary_age = self.qm.get_user_info(telename, "age_ref_id", "users")[0][0]
-        primary_gender = self.qm.get_user_info(telename, "gender_ref_id", "users")[0][0]
+        primary_age = self.qm.get_user_info(telename, "age_ref_id", "users")[0]["age_ref_id"]
+        primary_gender = self.qm.get_user_info(telename, "gender_ref_id", "users")[0]["gender_ref_id"]
 
         matches_B = self.qm.person_match_B(matches_A, primary_age, primary_gender)
 
@@ -307,11 +310,10 @@ class MainController:
                 "data": matches_B
             }
         else:
-            self.queue(user_id)
+            self.queue(telename)
             return {
                 "code": 200,
                 "message": "no matches found; user added to queue list",
                 "data": None
             }
 
-    

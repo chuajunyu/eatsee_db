@@ -107,9 +107,9 @@ class QueryManager:
     
     def person_match_B(self, matches_A, primary_age, primary_gender):
         age_match_B = self.db.execute_select("SELECT user_ref_id FROM age_ref WHERE age_ref_id = %s", (primary_age,))
-        age_match_B = [age_match[0] for age_match in age_match_B]
+        age_match_B = [row["user_ref_id"] for row in age_match_B]
         gender_match_B = self.db.execute_select("SELECT user_ref_id FROM gender_ref WHERE gender_ref_id = %s", (primary_gender,))
-        gender_match_B = [gender_match[0] for gender_match in gender_match_B]
+        gender_match_B = [row["user_ref_id"] for row in gender_match_B]
         query = f"SELECT user_id from users WHERE user_id = ANY(%s) AND user_id = ANY(%s) AND user_id = ANY(%s)"
         data = (matches_A, age_match_B, gender_match_B)
         return self.db.execute_select(query, data)
