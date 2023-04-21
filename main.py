@@ -66,6 +66,12 @@ async def select_cuisine_preferences(telename: Telename):
 async def select_diet_preferences(telename: Telename):
     return mc.select_pref(telename.telename, "diet_ref_id", "diet_ref")
 
+@app.post("/delete_user/")
+async def delete_user(telename: Telename):
+    return mc.delete_user(telename.telename)
+
+
+
 
 
 class Preferences(BaseModel):

@@ -110,6 +110,13 @@ class QueryManager:
         age_match_B = [row["user_ref_id"] for row in age_match_B]
         gender_match_B = self.db.execute_select("SELECT user_ref_id FROM gender_ref WHERE gender_ref_id = %s", (primary_gender,))
         gender_match_B = [row["user_ref_id"] for row in gender_match_B]
-        query = f"SELECT user_id from users WHERE user_id = ANY(%s) AND user_id = ANY(%s) AND user_id = ANY(%s)"
+        query = f"SELECT user_id FROM users WHERE user_id = ANY(%s) AND user_id = ANY(%s) AND user_id = ANY(%s)"
         data = (matches_A, age_match_B, gender_match_B)
         return self.db.execute_select(query, data)
+    
+    # delete functions
+
+    def delete_user(self, user_id, column, table):
+        query = f"DELETE FROM {table} WHERE {column} = ANY(%s)"
+        data = (user_id,)
+        return self.db.execute_change(query, data)
