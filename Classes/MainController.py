@@ -37,33 +37,32 @@ class MainController:
         if self.qm.select_user(telename):  # Check if user alr exists
             return {
                 "code": 405,
-                "message": "User Creation Failed: User already Exists"
+                "message": "User Creation Failed: User already Exists",
+                "data": None
                 }
         self.qm.insert_user(availability, telename, age, gender)
         return {
             "code": 200,
-            "message": "User Successfully Created"
+            "message": "User Successfully Created",
+            "data": None
             }
     
     def get_user_id(self, telename):
         # if invalid telename, user_id = []
         user_id = self.qm.get_user_id(telename)
-        if len(user_id) == 0:
+        if not user_id:
             return {
                 "code": 404, 
-                "message": f"invalid user: {telename}"
+                "message": f"invalid user: {telename}",
+                "data": None
             }
-        # if user_id is not Integer
-        if not isinstance(user_id[0][0], int):
+        else:
             return {
-                "code": 404, 
-                "message": f"invalid user id: {user_id}"
+                "code": 200, 
+                "message": f"{telename}'s user id obtained",
+                "data": user_id[0][0]
             }
-        return {
-            "code": 200,
-            "message": f"user_id successfully returned",
-            "data": user_id[0][0]
-        }
+        
     
     def get_user_info(self, telename, column, table):
         # if invalid telename, user_id = []
@@ -71,12 +70,19 @@ class MainController:
         if len(user_info) == 0:
             return {
                 "code": 404, 
-                "message": f"invalid user: {telename}"
+                "message": f"invalid user: {telename}",
+                "data": None
             }
         return user_info[0][0]
     
     def show_profile(self, telename):
+        # check if valid telename  
         user_id = self.get_user_id(telename)
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+        
         age = self.get_user_info(telename, "age_ref_id", "users")
         gender = self.get_user_info(telename, "gender_ref_id", "users")
         age_pref = self.qm.select_pref(user_id,  "age_ref", "age_ref_id")
@@ -97,84 +103,189 @@ class MainController:
             }
         }
     
-    def show_choices(self, column, table):
+    # CHOICE
+    def show_choices_template(self, column, table):
         choices = self.qm.get_info(column, table)
         return [choice[0] for choice in choices]
-
-    def show_all_choices(self):
-        return {
-            "age": self.show_choices("age_range", "age"),
-            "gender": self.show_choices("gender", "gender"),
-            "cuisine": self.show_choices("cuisine", "cuisine"),
-            "diet": self.show_choices("diet_res_type", "diet"),
-        }
     
-    def select_pref(self, telename, table, column):
-        user_id = self.get_user_id(telename)
-        return self.qm.select_pref(user_id, table, column)
-    
-    def change_pref(self, telename, new_pref, table, column):
-        # get user_id
-        user_id = self.get_user_id(telename)
-        # returns error if invalid telename or invalid user id
-        if not isinstance(user_id, int):
-            return user_id
-
-        # select old pref type list[tuple]
-        old_pref = self.qm.select_pref(user_id, table, column)
-        old_pref = [pref[0] for pref in old_pref]
-
-        dltpref = []
-        addpref = []
-
-        for pref_id in old_pref:
-            if pref_id not in new_pref:
-                dltpref.append(pref_id)
-
-        for pref_id in new_pref:
-            if pref_id not in old_pref:
-                addpref.append(pref_id)
-
-        if dltpref:
-            self.qm.dlt_pref(user_id, tuple(dltpref), table, column)
-
-        for each_pref in addpref:
-            self.qm.add_pref(user_id, each_pref, table)
-
+    def show_one_choice(self, column, table):
+        choices = self.qm.get_info(column, table)
         return {
-            "code": 201,
-            "message" : f"{table} preferences successfully updated",
-            "data" : {
-            "pref type": table, 
-            "old prefs": old_pref, 
-            "deleted prefs": dltpref, 
-            "added prefs": addpref, 
-            "new prefs": new_pref
+            "code": 200,
+            "message": f"{table} choices shown",
+            "data": {
+            table: self.show_choices_template(column, table)
             }
         }
 
-    # queue
-    def queue(self, telename):
+    def show_all_choices(self):
+        return {
+            "code": 200,
+            "message": "all choices shown",
+            "data": {
+            "age": self.show_choices_template("age_range", "age"),
+            "gender": self.show_choices_template("gender", "gender"),
+            "cuisine": self.show_choices_template("cuisine", "cuisine"),
+            "diet": self.show_choices_template("diet_res_type", "diet")            
+            }
+        }
+    
+    # PREFERENCE
+    def select_pref(self, telename, column, table):
+        # check if valid telename  
         user_id = self.get_user_id(telename)
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+        
+        return {
+            "code": 200,
+            "message": f"successfully selected {table[:-4]} preferences",
+            "data": [pref[0] for pref in self.qm.select_pref(user_id, column, table)]
+        }
+
+    
+    def change_pref(self, telename, new_pref, column, table, adding, deleting):
+        # check if valid telename        
+        user_id = self.get_user_id(telename)
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+
+        # check if valid preference
+        map_table = table[:-4]
+        map_column = f"{map_table}_id"
+        map_result_tuple = self.qm.get_info(map_column, map_table)
+        map_result_list = [result[0] for result in map_result_tuple]
+        for pref in new_pref:
+            if pref not in map_result_list:
+                return {
+                    "code": 404,
+                    "message": "invalid preference",
+                    "data": pref
+                }       
+
+        # select old pref type list[tuple]
+        old_pref = self.qm.select_pref(user_id, column, table)
+        old_pref = [pref[0] for pref in old_pref]
+
+        addpref = []
+        dltpref = []
+        finalpref = []
+
+        for pref in new_pref:
+                if pref not in old_pref:
+                    addpref.append(pref)
+        
+        if adding and not deleting:
+            for each_pref in addpref:
+                self.qm.add_pref(user_id, each_pref, table)
+            finalpref = list(set(old_pref + new_pref))
+            return {
+                "code": 201,
+                "message" : f"{table} preferences successfully updated",
+                "data" : {
+                "pref type": table[:-4], 
+                "old prefs": old_pref, 
+                "added prefs": addpref, 
+                "new prefs": finalpref
+                }
+            }
+
+        elif deleting and not adding:
+            for pref in old_pref:
+                if pref in new_pref:
+                    dltpref.append(pref)
+                else:
+                    finalpref.append(pref)
+            if dltpref:
+                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
+            return {
+                "code": 201,
+                "message" : f"{table} preferences successfully updated",
+                "data" : {
+                "pref type": table[:-4], 
+                "old prefs": old_pref, 
+                "deleted prefs": dltpref, 
+                "new prefs": finalpref
+                }
+            }
+
+        elif adding and deleting:
+            for pref in old_pref:
+                if pref not in new_pref:
+                    dltpref.append(pref)
+            for each_pref in addpref:
+                self.qm.add_pref(user_id, each_pref, table)
+            if dltpref:
+                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
+            return {
+                "code": 201,
+                "message" : f"{table} preferences successfully updated",
+                "data" : {
+                "pref type": table[:-4], 
+                "old prefs": old_pref, 
+                "added prefs": addpref, 
+                "deleted prefs": dltpref, 
+                "new prefs": new_pref
+                }
+            }
+
+
+    # QUEUE
+    def queue(self, telename):
+        # check if valid telename  
+        user_id = self.get_user_id(telename)
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+
+        # check if user already in queue
+        user_id_queued = self.qm.get_info("user_id", "queue")
+        user_id_queued_list = [user_id[0] for user_id in user_id_queued]
+        if user_id in user_id_queued_list:
+            return {
+            "code": 404,
+            "message": f"{telename} already in queue",
+            "data": None
+        }
+
         self.qm.queue(user_id)
         return {
             "code": 200,
-            "message": f"{telename} successfully queued"
+            "message": f"{telename} successfully queued",
+            "data": None
         }
     
     def dequeue(self, telename):
+        # check if valid telename  
         user_id = self.get_user_id(telename)
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+
         self.qm.dequeue(user_id)
         return {
             "code": 200,
-            "message": f"{telename} successfully dequeued"
+            "message": f"{telename} successfully dequeued",
+            "data": None
         }
 
-    # given preferences
+    # MATCH
     def person_match(self, telename):
+        # check if valid telename  
         user_id = self.get_user_id(telename)
-        age_pref = self.qm.select_pref(user_id, "age_ref", "age_ref_id")
-        gender_pref = self.qm.select_pref(user_id, "gender_ref", "gender_ref_id")
+        if not user_id["data"]:
+            return user_id
+        else:
+            user_id = user_id["data"]
+
+        age_pref = self.qm.select_pref(user_id, "age_ref_id", "age_ref")
+        gender_pref = self.qm.select_pref(user_id, "gender_ref_id", "gender_ref")
         queue_users = self.qm.select_queue_users()
 
         if not age_pref:
@@ -189,7 +300,18 @@ class MainController:
 
         matches_B = self.qm.person_match_B(matches_A, primary_age, primary_gender)
 
-        return {
-            "matches": matches_B
-        }
+        if matches_B:
+            return {
+                "code": 200,
+                "message": "matches found",
+                "data": matches_B
+            }
+        else:
+            self.queue(user_id)
+            return {
+                "code": 200,
+                "message": "no matches found; user added to queue list",
+                "data": None
+            }
+
     

@@ -14,12 +14,13 @@ mc = MainController()
 async def root():
     return {"message": "Hello World"}
 
+
+
 class User(BaseModel):
     availability: bool
     telename: str
     age: int
     gender: int
-
 
 @app.post("/create_user/")
 async def create_user(user: User):
@@ -49,6 +50,23 @@ async def deueue(telename: Telename):
 async def match(telename: Telename):
     return mc.person_match(telename.telename)
 
+@app.post("/select_age_preferences/")
+async def select_age_preferences(telename: Telename):
+    return mc.select_pref(telename.telename, "age_ref_id", "age_ref")
+
+@app.post("/select_gender_preferences/")
+async def select_gender_preferences(telename: Telename):
+    return mc.select_pref(telename.telename, "gender_ref_id", "gender_ref")
+
+@app.post("/select_cuisine_preferences/")
+async def select_cuisine_preferences(telename: Telename):
+    return mc.select_pref(telename.telename, "cuisine_ref_id", "cuisine_ref")
+
+@app.post("/select_diet_preferences/")
+async def select_diet_preferences(telename: Telename):
+    return mc.select_pref(telename.telename, "diet_ref_id", "diet_ref")
+
+
 
 class Preferences(BaseModel):
     telename:str
@@ -57,39 +75,72 @@ class Preferences(BaseModel):
 
 @app.post("/change_age_preferences/")
 async def change_age_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref", "age_ref_id")
+    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", True, True)
 
 @app.post("/change_gender_preferences/")
-async def change_diet_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref", "gender_ref_id")
+async def change_gender_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", True, True)
 
 @app.post("/change_cuisine_preferences/")
 async def change_cuisine_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref", "cuisine_ref_id")
+    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, True)
 
 @app.post("/change_diet_preferences/")
 async def change_diet_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref", "diet_ref_id")
+    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", True, True)
+
+@app.post("/add_age_preferences/")
+async def add_age_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", True, False)
+
+@app.post("/add_gender_preferences/")
+async def add_gender_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", True, False)
+
+@app.post("/add_cuisine_preferences/")
+async def add_cuisine_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, False)
+
+@app.post("/add_diet_preferences/")
+async def add_diet_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", True, False)
+
+@app.post("/delete_age_preferences/")
+async def delete_age_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", False, True)
+
+@app.post("/delete_gender_preferences/")
+async def delete_gender_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", False, True)
+
+@app.post("/delete_cuisine_preferences/")
+async def delete_cuisine_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", False, True)
+
+@app.post("/delete_diet_preferences/")
+async def delete_diet_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
 
 
+# No classes
 
 @app.post("/show_age_choices/")
-async def show_choices():
-    return mc.show_choices("age_range", "age")
+async def show_one_choice():
+    return mc.show_one_choice("age_range", "age")
 
 @app.post("/show_gender_choices/")
-async def show_choices():
-    return mc.show_choices("gender", "gender")
+async def show_one_choice():
+    return mc.show_one_choice("gender", "gender")
 
 @app.post("/show_cuisine_choices/")
-async def show_choices():
-    return mc.show_choices("cuisine", "cuisine")
+async def show_one_choice():
+    return mc.show_one_choice("cuisine", "cuisine")
 
 @app.post("/show_diet_choices/")
-async def show_choices():
-    return mc.show_choices("diet_res_type", "diet")
+async def show_one_choice():
+    return mc.show_one_choice("diet_res_type", "diet")
 
 @app.post("/show_all_choices/")
-async def show_choices():
+async def show_all_choices():
     return mc.show_all_choices()
 

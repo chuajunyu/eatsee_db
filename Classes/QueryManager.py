@@ -64,13 +64,13 @@ class QueryManager:
 
     # preference functions
 
-    def select_pref(self, user_id, table, column):
+    def select_pref(self, user_id, column, table):
         query = f"SELECT {column} FROM {table} WHERE user_ref_id = %s"
         data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
-    def dlt_pref(self, user_id, dltpref, table, column):
+    def dlt_pref(self, user_id, dltpref, column, table):
         query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} in %s"
         data = (user_id, dltpref)
         self.db.execute_change(query, data)
