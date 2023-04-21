@@ -59,7 +59,11 @@ class MainController:
                 "code": 404, 
                 "message": f"invalid user id: {user_id}"
             }
-        return user_id[0][0]
+        return {
+            "code": 200,
+            "message": f"user_id successfully returned",
+            "data": user_id[0][0]
+        }
     
     def get_user_info(self, telename, column, table):
         # if invalid telename, user_id = []
@@ -109,7 +113,6 @@ class MainController:
         user_id = self.get_user_id(telename)
         return self.qm.select_pref(user_id, table, column)
     
-
     def change_pref(self, telename, new_pref, table, column):
         # get user_id
         user_id = self.get_user_id(telename)
@@ -167,7 +170,6 @@ class MainController:
             "message": f"{telename} successfully dequeued"
         }
 
-
     # given preferences
     def person_match(self, telename):
         user_id = self.get_user_id(telename)
@@ -190,3 +192,4 @@ class MainController:
         return {
             "matches": matches_B
         }
+    
