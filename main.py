@@ -71,13 +71,31 @@ async def delete_user(telename: Telename):
     return mc.delete_user(telename.telename)
 
 
+class UserCharacteristics(BaseModel):
+    telename: str
+    characteristic: int
 
+@app.post("/change_age/")
+async def change_age(usercharacteristic: UserCharacteristics):
+    return mc.change_user_info(usercharacteristic.telename, usercharacteristic.characteristic, "age_ref_id", "age")
+
+@app.post("/change_gender/")
+async def change_gender(usercharacteristic: UserCharacteristics):
+    return mc.change_user_info(usercharacteristic.telename, usercharacteristic.characteristic, "gender_ref_id", "gender")
+
+
+class UserAvailability(BaseModel):
+    telename: str
+    availability: bool
+
+@app.post("/change_availability/")
+async def change_availability(useravailability: UserAvailability):
+    return mc.change_user_info(useravailability.telename, useravailability.availability, "availability", "availability")
 
 
 class Preferences(BaseModel):
     telename:str
     preferences: list[int]
-
 
 @app.post("/change_age_preferences/")
 async def change_age_preferences(preferences: Preferences):

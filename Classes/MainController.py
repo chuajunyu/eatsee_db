@@ -130,6 +130,16 @@ class MainController:
             }
         }
     
+    # USER CHARACTERISTIC
+    def change_user_info(self, telename, value, column, msg_type):
+        self.qm.update_user_info(telename, value, column)
+        return {
+            "code": 200,
+            "message": f"{telename}'s {msg_type} updated to {value}.",
+            "data": None
+        }
+    
+    
     # PREFERENCE
     def select_pref(self, telename, column, table):
         # check if valid telename  
@@ -397,7 +407,7 @@ class MainController:
                         "data": matches_D
                     }
                 
-                
+
     # DELETE ACCOUNT because no love
     def delete_user(self, telename):
         # check if valid telename  

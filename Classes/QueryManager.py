@@ -61,6 +61,11 @@ class QueryManager:
         query = f"SELECT {column} FROM {table}"
         record = self.db.execute_select(query)
         return record
+    
+    def update_user_info(self, telename, value, column):
+        query = f"UPDATE users SET {column} = %s WHERE telename = %s"
+        data = (value, telename)
+        self.db.execute_change(query, data)
 
     # preference functions
 
