@@ -100,20 +100,36 @@ class QueryManager:
         return self.db.execute_select(query)
     
     def person_match_A(self, user_id, age_pref, gender_pref):
-        queue_users_info = "SELECT users.user_id, users.age_ref_id, users.gender_ref_id FROM users JOIN queue ON users.user_id = queue.user_id ORDER BY timestamp"
-        query = f"SELECT qui.user_id FROM ({queue_users_info}) AS qui WHERE age_ref_id = ANY(%s) AND gender_ref_id = ANY(%s) AND NOT user_id = %s"
+        queue_users_info = "SELECT users.user_id, users.age_ref_id, users.gender_ref_id FROM users JOIN queue ON users.user_id = queue.user_id"
+        age_gender_match_A = f"SELECT qui.user_id FROM ({queue_users_info}) AS qui WHERE age_ref_id = ANY(%s) AND gender_ref_id = ANY(%s) AND NOT user_id = %s"
         data = (age_pref, gender_pref, user_id)
-        return self.db.execute_select(query, data)
+        return self.db.execute_select(age_gender_match_A, data)
     
     def person_match_B(self, matches_A, primary_age, primary_gender):
-        age_match_B = self.db.execute_select("SELECT user_ref_id FROM age_ref WHERE age_ref_id = %s", (primary_age,))
+        age_match_B_query = "SELECT DISTINCT user_ref_id FROM age_ref WHERE user_ref_id = ANY(%s) AND age_ref_id = %s"
+        data_age = (matches_A, primary_age)
+        age_match_B = self.db.execute_select(age_match_B_query, data_age)
         age_match_B = [row["user_ref_id"] for row in age_match_B]
-        gender_match_B = self.db.execute_select("SELECT user_ref_id FROM gender_ref WHERE gender_ref_id = %s", (primary_gender,))
-        gender_match_B = [row["user_ref_id"] for row in gender_match_B]
-        query = f"SELECT user_id FROM users WHERE user_id = ANY(%s) AND user_id = ANY(%s) AND user_id = ANY(%s)"
-        data = (matches_A, age_match_B, gender_match_B)
-        return self.db.execute_select(query, data)
+        age_gender_match_B_query = "SELECT DISTINCT user_ref_id FROM gender_ref WHERE user_ref_id = ANY(%s) AND gender_ref_id = %s"
+        data_gender = (age_match_B, primary_gender)
+        return self.db.execute_select(age_gender_match_B_query, data_gender)
     
+    def person_match_cuisine(self, matches_B, cuisine_pref):
+        cuisine_match_C = "SELECT cuisine_ref.user_ref_id FROM cuisine_ref LEFT JOIN queue ON cuisine_ref.user_ref_id = queue.user_id WHERE user_ref_id = ANY(%s) AND cuisine_ref_id = ANY(%s) GROUP BY cuisine_ref.user_ref_id ORDER BY MIN(timestamp)"
+        data = (matches_B, cuisine_pref)
+        return self.db.execute_select(cuisine_match_C, data)
+    
+    def person_match_dietBlacklist(self, matches_C, diet_pref_blacklist):
+        diet_match_blacklist = "SELECT DISTINCT diet_ref.user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
+        data = (matches_C, diet_pref_blacklist)
+        return self.db.execute_select(diet_match_blacklist, data)
+
+    # def person_match_timestamp(self, matches_final):
+    #     query = "SELECT user_id FROM queue where user_id = ANY(%s) ORDER BY timestamp"
+    #     data = (matches_final,)
+    #     return self.db.execute_select(query, data)
+
+
     # delete functions
 
     def delete_user(self, user_id, column, table):

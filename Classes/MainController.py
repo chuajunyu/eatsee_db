@@ -284,6 +284,8 @@ class MainController:
         else:
             user_id = user_id["data"]["user_id"]
 
+        # Match A
+
         age_pref = self.qm.select_pref(user_id, "age_ref_id", "age_ref")
         age_pref = [row["age_ref_id"] for row in age_pref]
         gender_pref = self.qm.select_pref(user_id, "gender_ref_id", "gender_ref")
@@ -297,26 +299,105 @@ class MainController:
 
         matches_A = self.qm.person_match_A(user_id, age_pref, gender_pref)
         matches_A = [row["user_id"] for row in matches_A]
+        if not matches_A:
+            self.queue(telename)
+            return {
+                "code": 404,
+                "message": "No matches found. User added to queue list.",
+                "data": "matches_A empty"
+            }
+        
+        # Match B
 
         primary_age = self.qm.get_user_info(telename, "age_ref_id", "users")[0]["age_ref_id"]
         primary_gender = self.qm.get_user_info(telename, "gender_ref_id", "users")[0]["gender_ref_id"]
 
         matches_B = self.qm.person_match_B(matches_A, primary_age, primary_gender)
-
-        if matches_B:
-            return {
-                "code": 200,
-                "message": "Matches found.",
-                "data": matches_B
-            }
-        else:
+        matches_B = [row["user_ref_id"] for row in matches_B]
+        if not matches_B:
             self.queue(telename)
             return {
-                "code": 200,
+                "code": 404,
                 "message": "No matches found. User added to queue list.",
-                "data": None
+                "data": "matches_B empty"
+            }
+        
+        # Match C
+        
+        cuisine_pref = self.qm.select_pref(user_id, "cuisine_ref_id", "cuisine_ref")
+        cuisine_pref = [row["cuisine_ref_id"] for row in cuisine_pref]
+        diet_pref = self.qm.select_pref(user_id, "diet_ref_id", "diet_ref")
+        diet_pref = [row["diet_ref_id"] for row in diet_pref]
+
+        if not cuisine_pref:
+            cuisine_pref = [1,2,3,4,5,6,7,8]    # populate with all choices
+
+        matches_C = self.qm.person_match_cuisine(matches_B, cuisine_pref)
+        matches_C = [row["user_ref_id"] for row in matches_C]
+
+        if not matches_C:
+            self.queue(telename)
+            return {
+                "code": 404,
+                "message": "No matches found. User added to queue list.",
+                "data": "matches_C empty"
             }
 
+        if not diet_pref:
+                return {
+                        "code": 200,
+                        "message": "Match found",
+                        "data": matches_C
+                    }
+        
+        # Match D
+        
+        else:
+            diet_dict = {
+            "Halal": 1,
+            "No Halal": 2,
+            "Vegetarian": 3,
+            "No Vegetarian": 4,
+            "Vegan": 5,
+            "No Vegan": 6
+            }
+
+            diet_pref_blacklist = []
+            for pref in diet_pref:
+                if pref%2 == 1:
+                    diet_pref_blacklist.append(pref+1)
+            else:
+                diet_pref_blacklist.append(pref-1)
+            
+            matches_D_blacklist = self.qm.person_match_dietBlacklist(matches_C, diet_pref_blacklist)
+            matches_D_blacklist = [row["user_ref_id"] for row in matches_D_blacklist]
+
+            if not matches_D_blacklist:
+                return {
+                        "code": 200,
+                        "message": "Match found",
+                        "data": matches_C
+                    }
+            else:
+                matches_D = []
+                for match in matches_C:
+                    if match not in matches_D_blacklist:
+                        matches_D.append(match)
+
+                if not matches_D:
+                    return {
+                        "code": 404,
+                        "message": "No matches found. User added to queue list.",
+                        "data": "matches_D empty"
+                    }
+                else:
+                    return {
+                        "code": 200,
+                        "message": "Match found",
+                        "data": matches_D
+                    }
+                
+                
     # DELETE ACCOUNT because no love
     def delete_user(self, telename):
         # check if valid telename  
