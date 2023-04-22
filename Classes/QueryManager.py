@@ -124,6 +124,7 @@ class QueryManager:
         data = (matches_C, diet_pref_blacklist)
         return self.db.execute_select(diet_match_blacklist, data)
 
+    # # to be used for problem: queued user dequeues the moment they are matched with someone, hence need to check if they still in queue and want to be matched. Need to change MainController to use this function.
     # def person_match_timestamp(self, matches_final):
     #     query = "SELECT user_id FROM queue where user_id = ANY(%s) ORDER BY timestamp"
     #     data = (matches_final,)
