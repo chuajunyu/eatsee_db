@@ -43,7 +43,7 @@ async def queue(telename: Telename):
     return mc.queue(telename.telename)
 
 @app.post("/dequeue/")
-async def deueue(telename: Telename):
+async def dequeue(telename: Telename):
     return mc.dequeue(telename.telename)
 
 @app.post("/match/")

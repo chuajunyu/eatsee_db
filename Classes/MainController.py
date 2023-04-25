@@ -109,7 +109,6 @@ class MainController:
         return [row[column] for row in choices]
     
     def show_one_choice(self, column, table):
-        choices = self.qm.get_info(column, table)
         return {
             "code": 200,
             "message": f"{table} choices shown.",
