@@ -104,20 +104,16 @@ class MainController:
         }
     
     # CHOICE
-    def show_choices_template(self, column1, column2, table):
-        choices = self.qm.get_info("*", table)
-        dict_choice = {}
-        for row in choices:
-            dict_choice[row[column1]] = row[column2]
-        return dict_choice
+    def show_choices_template(self, column, table):
+        choices = self.qm.get_info(column, table)
+        return [row[column] for row in choices]
     
-    def show_one_choice(self, column1, column2, table):
-        choices = self.qm.get_info("*", table)
+    def show_one_choice(self, column, table):
         return {
             "code": 200,
             "message": f"{table} choices shown.",
             "data": {
-            table: self.show_choices_template(column1, column2, table)
+            table: self.show_choices_template(column, table)
             }
         }
 
@@ -126,10 +122,10 @@ class MainController:
             "code": 200,
             "message": "All choices shown.",
             "data": {
-            "age": self.show_choices_template("age_id", "age_range", "age"),
-            "gender": self.show_choices_template("gender_id", "gender", "gender"),
-            "cuisine": self.show_choices_template("cuisine_id", "cuisine", "cuisine"),
-            "diet": self.show_choices_template("diet_id", "diet_res_type", "diet")            
+            "age": self.show_choices_template("age_range", "age"),
+            "gender": self.show_choices_template("gender", "gender"),
+            "cuisine": self.show_choices_template("cuisine", "cuisine"),
+            "diet": self.show_choices_template("diet_res_type", "diet")            
             }
         }
     
@@ -368,7 +364,7 @@ class MainController:
         else:
             diet_dict = {
             "Halal": 1,
-            "Want to eat pork": 2,
+            "No Halal": 2,
             "Vegetarian": 3,
             "No Vegetarian": 4,
             "Vegan": 5,
