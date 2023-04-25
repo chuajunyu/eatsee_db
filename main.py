@@ -150,19 +150,19 @@ async def delete_diet_preferences(preferences: Preferences):
 
 @app.post("/show_age_choices/")
 async def show_one_choice():
-    return mc.show_one_choice("age_range", "age")
+    return mc.show_one_choice("age_id", "age_range", "age")
 
 @app.post("/show_gender_choices/")
 async def show_one_choice():
-    return mc.show_one_choice("gender", "gender")
+    return mc.show_one_choice("gender_id", "gender", "gender")
 
 @app.post("/show_cuisine_choices/")
 async def show_one_choice():
-    return mc.show_one_choice("cuisine", "cuisine")
+    return mc.show_one_choice("cuisine_id", "cuisine", "cuisine")
 
 @app.post("/show_diet_choices/")
 async def show_one_choice():
-    return mc.show_one_choice("diet_res_type", "diet")
+    return mc.show_one_choice("diet_id", "diet_res_type", "diet")
 
 @app.post("/show_all_choices/")
 async def show_all_choices():
