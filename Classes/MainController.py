@@ -76,7 +76,7 @@ class MainController:
         return user_info[0][0]
     
     def show_profile(self, telename):
-        user_id = self.get_user_id(telename)
+        user_id = self.qm.get_user_id(telename)[0][0]
         age = self.get_user_info(telename, "age_ref_id", "users")
         gender = self.get_user_info(telename, "gender_ref_id", "users")
         age_pref = self.qm.select_pref(user_id,  "age_ref", "age_ref_id")
