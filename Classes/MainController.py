@@ -65,7 +65,6 @@ class MainController:
         
     
     def get_user_info(self, telename, column, table):
-        # if invalid telename, user_id = []
         user_info = self.qm.get_user_info(telename, column, table)
         if len(user_info) == 0:
             return {
