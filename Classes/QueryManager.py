@@ -51,6 +51,12 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
+    def get_user_telename(self, user_id):
+        query = "SELECT telename FROM users WHERE user_id = %s"
+        data = (user_id,)
+        record = self.db.execute_select(query, data)
+        return record
+    
     def get_user_info(self, telename, column, table):
         query = f"SELECT {column} FROM {table} WHERE telename = %s"
         data = (telename,)
@@ -125,7 +131,7 @@ class QueryManager:
         return self.db.execute_select(cuisine_match_C, data)
     
     def person_match_dietBlacklist(self, matches_C, diet_pref_blacklist):
-        diet_match_blacklist = "SELECT DISTINCT diet_ref.user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
+        diet_match_blacklist = "SELECT DISTINCT user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
         data = (matches_C, diet_pref_blacklist)
         return self.db.execute_select(diet_match_blacklist, data)
 

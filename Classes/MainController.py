@@ -103,6 +103,8 @@ class MainController:
             }
         }
     
+    
+    
 
     # CHOICE
     def show_choices_template(self, column1, column2, table):
@@ -349,6 +351,7 @@ class MainController:
 
         matches_C = self.qm.person_match_cuisine(matches_B, cuisine_pref)
         matches_C = [row["user_ref_id"] for row in matches_C]
+        final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_C]
 
         if not matches_C:
             self.queue(telename)
@@ -362,7 +365,7 @@ class MainController:
                 return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_C
+                        "data": final_result
                     }
         
         # Match D
@@ -391,13 +394,15 @@ class MainController:
                 return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_C
+                        "data": final_result
                     }
             else:
                 matches_D = []
                 for match in matches_C:
                     if match not in matches_D_blacklist:
                         matches_D.append(match)
+
+                final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_D]
 
                 if not matches_D:
                     return {
@@ -409,7 +414,7 @@ class MainController:
                     return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_D
+                        "data": final_result
                     }
                 
 
