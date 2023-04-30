@@ -168,3 +168,7 @@ async def show_one_choice():
 async def show_all_choices():
     return mc.show_all_choices()
 
+@app.post("/test_function")
+async def test_function():
+    return mc.test_function()
+
