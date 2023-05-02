@@ -7,7 +7,7 @@ from Classes import QueryManager
 # helper functions
 def user_creation(self, telename, age, gender, age_pref, gender_pref, cuisine_pref, diet_pref, queue_bool, chat_bool):
     self.mc.insert_user(True, telename, age, gender)
-    user_id = self.mc.get_user_id(telename)["data"]
+    user_id = self.mc.get_user_id(telename)["data"]["user_id"]
     self.mc.change_pref(telename, age_pref, "age_ref_id", "age_ref", True, True)
     self.mc.change_pref(telename, gender_pref, "gender_ref_id", "gender_ref", True, True)
     self.mc.change_pref(telename, cuisine_pref, "cuisine_ref_id", "cuisine_ref", True, True)
@@ -144,8 +144,7 @@ class MainControllerTest(unittest.TestCase):
 
     def test_change_user_info(self):
         user_deletion(self, self.telename)
-        user_creation(self, self.telename, self.age, self.gender, self.initialAgePref, self.initialGenderPref, self.initialCuisinePref, self.initialDietPref, True, True)
-        
+        user_creation(self, self.telename, self.age, self.gender, self.initialAgePref, self.initialGenderPref, self.initialCuisinePref, self.initialDietPref, True, True)       
         test_function = "change_user_info"
 
         age_return_result = self.mc.change_user_info(self.telename, self.changeUserAge, "age_ref_id", "age")
@@ -177,8 +176,8 @@ class MainControllerTest(unittest.TestCase):
     def test_change_pref(self):
         user_deletion(self, self.telename)
         user = user_creation(self, self.telename, self.age, self.gender, self.initialAgePref, self.initialGenderPref, self.initialCuisinePref, self.initialDietPref, True, True)
-        user_id = user["user_id"]
         test_function = "change_pref"
+        user_id = user["user_id"]
 
         initial_pref = self.mc.select_pref(self.telename, self.changePrefColumn, self.changePrefTable)["data"]
 
@@ -255,7 +254,6 @@ class MainControllerTest(unittest.TestCase):
     def test_delete_user(self):
         user_deletion(self, self.telename)
         user = user_creation(self, self.telename, self.age, self.gender, self.initialAgePref, self.initialGenderPref, self.initialCuisinePref, self.initialDietPref, True, True)
-
         test_function = "delete_user"
         user_id = user["user_id"]
         result = self.mc.delete_user(self.telename)

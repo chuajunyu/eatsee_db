@@ -185,7 +185,7 @@ class MainController:
 
         # select old pref type list[tuple]
         old_pref = self.qm.select_pref(user_id, column, table)
-        old_pref = [row[column] for row in old_pref]
+        old_pref = sorted([row[column] for row in old_pref])
 
         addpref = []
         dltpref = []
@@ -194,12 +194,13 @@ class MainController:
         for pref in new_pref:
                 if pref not in old_pref:
                     addpref.append(pref)
+        addpref.sort()
         
         if adding and not deleting:
-            for each_pref in addpref:
-                self.qm.add_pref(user_id, each_pref, table)
-            finalpref = list(set(old_pref + new_pref))
+            if addpref:
+                self.qm.add_multiple_prefs(user_id, addpref, column, table)
             dltpref = None
+            finalpref = sorted(list(set(old_pref + new_pref)))
 
         elif deleting and not adding:
             for pref in old_pref:
@@ -208,17 +209,19 @@ class MainController:
                 else:
                     finalpref.append(pref)
             if dltpref:
-                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
+                self.qm.dlt_pref(user_id, dltpref, column, table)
             addpref = None
+            finalpref.sort()
 
         elif adding and deleting:
             for pref in old_pref:
                 if pref not in new_pref:
                     dltpref.append(pref)
-            for each_pref in addpref:
-                self.qm.add_pref(user_id, each_pref, table)
+            if addpref:
+                self.qm.add_multiple_prefs(user_id, addpref, column, table)
             if dltpref:
-                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
+                self.qm.dlt_pref(user_id, dltpref, column, table)
+            finalpref = sorted(new_pref)
             
         return {
                 "code": 200,
@@ -228,7 +231,7 @@ class MainController:
                 "old prefs": old_pref, 
                 "added prefs": addpref, 
                 "deleted prefs": dltpref, 
-                "new prefs": new_pref
+                "new prefs": finalpref
                 }
             }
         

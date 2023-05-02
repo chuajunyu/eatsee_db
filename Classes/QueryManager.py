@@ -83,13 +83,23 @@ class QueryManager:
     
     def dlt_pref(self, user_id, dltpref, column, table):
         query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} in %s"
-        data = (user_id, dltpref)
+        data = (user_id, tuple(dltpref))
         self.db.execute_change(query, data)
     
-    def add_pref(self, user_id, addpref, table):
-        query = f"INSERT INTO {table} VALUES (%s, %s)"
-        data = (user_id, addpref)
-        self.db.execute_change(query, data)
+    # def add_pref(self, user_id, addpref, table):
+    #     query = f"INSERT INTO {table} VALUES (%s, %s)"
+    #     data = (user_id, addpref)
+    #     self.db.execute_change(query, data)
+
+    def add_multiple_prefs(self, user_id, addpref, column, table):
+        addpref_datalist = []
+        for each_pref in addpref:
+            addpref_datalist.append((user_id, each_pref))
+            addpref_datastr = str(addpref_datalist)[1:-1]
+
+        query = f"INSERT INTO {table} (user_ref_id, {column}) VALUES {addpref_datastr}"
+        self.db.execute_change(query)
+
 
     # queue functions
 
