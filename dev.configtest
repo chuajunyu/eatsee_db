@@ -1,5 +1,0 @@
-[DEFAULT]
-database_host = localhost
-database_name = eatsee_test
-database_user = postgres
-password = Duckie51020
