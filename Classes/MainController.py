@@ -64,8 +64,7 @@ class MainController:
             }
         
     
-    def get_user_info(self, telename, column, table):
-        # if invalid telename, user_id = []
+    def get_user_info(self, telename, column, table="users"):
         user_info = self.qm.get_user_info(telename, column, table)
         if len(user_info) == 0:
             return {
@@ -103,17 +102,24 @@ class MainController:
             }
         }
     
-    # CHOICE
-    def show_choices_template(self, column, table):
-        choices = self.qm.get_info(column, table)
-        return [row[column] for row in choices]
     
-    def show_one_choice(self, column, table):
+    
+
+    # CHOICE
+    def show_choices_template(self, column1, column2, table):
+        choices = self.qm.get_info("*", table)
+        dict_choice = {}
+        for row in choices:
+            dict_choice[row[column1]] = row[column2]
+        return dict_choice
+    
+    def show_one_choice(self, column1, column2, table):
+        choices = self.qm.get_info("*", table)
         return {
             "code": 200,
             "message": f"{table} choices shown.",
             "data": {
-            table: self.show_choices_template(column, table)
+            table: self.show_choices_template(column1, column2, table)
             }
         }
 
@@ -122,13 +128,14 @@ class MainController:
             "code": 200,
             "message": "All choices shown.",
             "data": {
-            "age": self.show_choices_template("age_range", "age"),
-            "gender": self.show_choices_template("gender", "gender"),
-            "cuisine": self.show_choices_template("cuisine", "cuisine"),
-            "diet": self.show_choices_template("diet_res_type", "diet")            
+            "age": self.show_choices_template("age_id", "age_range", "age"),
+            "gender": self.show_choices_template("gender_id", "gender", "gender"),
+            "cuisine": self.show_choices_template("cuisine_id", "cuisine", "cuisine"),
+            "diet": self.show_choices_template("diet_id", "diet_res_type", "diet")            
             }
         }
-    
+
+
     # USER CHARACTERISTIC
     def change_user_info(self, telename, value, column, msg_type):
         self.qm.update_user_info(telename, value, column)
@@ -147,7 +154,7 @@ class MainController:
             return user_id
         else:
             user_id = user_id["data"]["user_id"]
-        
+    
         return {
             "code": 200,
             "message": f"Successfully selected {table[:-4]} preferences.",
@@ -178,7 +185,7 @@ class MainController:
 
         # select old pref type list[tuple]
         old_pref = self.qm.select_pref(user_id, column, table)
-        old_pref = [row[column] for row in old_pref]
+        old_pref = sorted([row[column] for row in old_pref])
 
         addpref = []
         dltpref = []
@@ -187,21 +194,13 @@ class MainController:
         for pref in new_pref:
                 if pref not in old_pref:
                     addpref.append(pref)
+        addpref.sort()
         
         if adding and not deleting:
-            for each_pref in addpref:
-                self.qm.add_pref(user_id, each_pref, table)
-            finalpref = list(set(old_pref + new_pref))
-            return {
-                "code": 201,
-                "message" : f"{table} preferences successfully updated.",
-                "data" : {
-                "pref type": table[:-4], 
-                "old prefs": old_pref, 
-                "added prefs": addpref, 
-                "new prefs": finalpref
-                }
-            }
+            if addpref:
+                self.qm.add_multiple_prefs(user_id, addpref, column, table)
+            dltpref = None
+            finalpref = sorted(list(set(old_pref + new_pref)))
 
         elif deleting and not adding:
             for pref in old_pref:
@@ -210,40 +209,45 @@ class MainController:
                 else:
                     finalpref.append(pref)
             if dltpref:
-                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
-            return {
-                "code": 201,
-                "message" : f"{table} preferences successfully updated.",
-                "data" : {
-                "pref type": table[:-4], 
-                "old prefs": old_pref, 
-                "deleted prefs": dltpref, 
-                "new prefs": finalpref
-                }
-            }
+                self.qm.dlt_pref(user_id, dltpref, column, table)
+            addpref = None
+            finalpref.sort()
 
         elif adding and deleting:
             for pref in old_pref:
                 if pref not in new_pref:
                     dltpref.append(pref)
-            for each_pref in addpref:
-                self.qm.add_pref(user_id, each_pref, table)
+            if addpref:
+                self.qm.add_multiple_prefs(user_id, addpref, column, table)
             if dltpref:
-                self.qm.dlt_pref(user_id, tuple(dltpref), column, table)
-            return {
-                "code": 201,
+                self.qm.dlt_pref(user_id, dltpref, column, table)
+            finalpref = sorted(new_pref)
+            
+        return {
+                "code": 200,
                 "message" : f"{table} preferences successfully updated.",
                 "data" : {
                 "pref type": table[:-4], 
                 "old prefs": old_pref, 
                 "added prefs": addpref, 
                 "deleted prefs": dltpref, 
-                "new prefs": new_pref
+                "new prefs": finalpref
                 }
             }
+        
 
 
     # QUEUE
+    def check_queue(self):
+        # check if user already in queue
+        user_id_queued = self.qm.get_info("user_id", "queue")
+        user_id_queued_list = [row["user_id"] for row in user_id_queued]
+        return {
+            "code": 200,
+            "message": "Successfully obtained user_ids currently in queue.",
+            "data": user_id_queued_list
+        }
+
     def queue(self, telename):
         # check if valid telename  
         user_id = self.get_user_id(telename)
@@ -252,9 +256,8 @@ class MainController:
         else:
             user_id = user_id["data"]["user_id"]
 
-        # check if user already in queue
-        user_id_queued = self.qm.get_info("user_id", "queue")
-        user_id_queued_list = [row["user_id"] for row in user_id_queued]
+        user_id_queued_list = self.check_queue()["data"]
+
         if user_id in user_id_queued_list:
             return {
             "code": 404,
@@ -338,11 +341,10 @@ class MainController:
         diet_pref = self.qm.select_pref(user_id, "diet_ref_id", "diet_ref")
         diet_pref = [row["diet_ref_id"] for row in diet_pref]
 
-        if not cuisine_pref:
-            cuisine_pref = [1,2,3,4,5,6,7,8]    # populate with all choices
 
         matches_C = self.qm.person_match_cuisine(matches_B, cuisine_pref)
         matches_C = [row["user_ref_id"] for row in matches_C]
+        final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_C]
 
         if not matches_C:
             self.queue(telename)
@@ -356,7 +358,7 @@ class MainController:
                 return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_C
+                        "data": final_result
                     }
         
         # Match D
@@ -385,13 +387,15 @@ class MainController:
                 return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_C
+                        "data": final_result
                     }
             else:
                 matches_D = []
                 for match in matches_C:
                     if match not in matches_D_blacklist:
                         matches_D.append(match)
+
+                final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_D]
 
                 if not matches_D:
                     return {
@@ -403,9 +407,9 @@ class MainController:
                     return {
                         "code": 200,
                         "message": "Match found",
-                        "data": matches_D
+                        "data": final_result
                     }
-                
+      
 
     # DELETE ACCOUNT because no love
     def delete_user(self, telename):
@@ -431,3 +435,7 @@ class MainController:
                 "message": f"User {telename} has been deleted. Goodbye.",
                 "data": None
             }
+    
+
+    def test_function(self):
+        return self.qm.get_user_info("A", "diet_id", "diet")

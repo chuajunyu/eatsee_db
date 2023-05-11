@@ -51,7 +51,13 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
-    def get_user_info(self, telename, column, table):
+    def get_user_telename(self, user_id):
+        query = "SELECT telename FROM users WHERE user_id = %s"
+        data = (user_id,)
+        record = self.db.execute_select(query, data)
+        return record
+    
+    def get_user_info(self, telename, column, table="users"):
         query = f"SELECT {column} FROM {table} WHERE telename = %s"
         data = (telename,)
         record = self.db.execute_select(query, data)
@@ -77,13 +83,23 @@ class QueryManager:
     
     def dlt_pref(self, user_id, dltpref, column, table):
         query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} in %s"
-        data = (user_id, dltpref)
+        data = (user_id, tuple(dltpref))
         self.db.execute_change(query, data)
     
-    def add_pref(self, user_id, addpref, table):
-        query = f"INSERT INTO {table} VALUES (%s, %s)"
-        data = (user_id, addpref)
-        self.db.execute_change(query, data)
+    # def add_pref(self, user_id, addpref, table):
+    #     query = f"INSERT INTO {table} VALUES (%s, %s)"
+    #     data = (user_id, addpref)
+    #     self.db.execute_change(query, data)
+
+    def add_multiple_prefs(self, user_id, addpref, column, table):
+        addpref_datalist = []
+        for each_pref in addpref:
+            addpref_datalist.append((user_id, each_pref))
+            addpref_datastr = str(addpref_datalist)[1:-1]
+
+        query = f"INSERT INTO {table} (user_ref_id, {column}) VALUES {addpref_datastr}"
+        self.db.execute_change(query)
+
 
     # queue functions
 
@@ -115,17 +131,17 @@ class QueryManager:
         data_age = (matches_A, primary_age)
         age_match_B = self.db.execute_select(age_match_B_query, data_age)
         age_match_B = [row["user_ref_id"] for row in age_match_B]
-        age_gender_match_B_query = "SELECT DISTINCT user_ref_id FROM gender_ref WHERE user_ref_id = ANY(%s) AND gender_ref_id = %s"
+        age_gender_match_B_query = "SELECT user_ref_id FROM gender_ref WHERE user_ref_id = ANY(%s) AND gender_ref_id = %s"
         data_gender = (age_match_B, primary_gender)
         return self.db.execute_select(age_gender_match_B_query, data_gender)
     
     def person_match_cuisine(self, matches_B, cuisine_pref):
-        cuisine_match_C = "SELECT cuisine_ref.user_ref_id FROM cuisine_ref LEFT JOIN queue ON cuisine_ref.user_ref_id = queue.user_id WHERE user_ref_id = ANY(%s) AND cuisine_ref_id = ANY(%s) GROUP BY cuisine_ref.user_ref_id ORDER BY MIN(timestamp)"
+        cuisine_match_C = "SELECT user_ref_id FROM cuisine_ref LEFT JOIN queue ON cuisine_ref.user_ref_id = queue.user_id WHERE user_ref_id = ANY(%s) and cuisine_ref_id = ANY(%s) GROUP BY user_ref_id ORDER BY MIN(timestamp)"
         data = (matches_B, cuisine_pref)
         return self.db.execute_select(cuisine_match_C, data)
     
     def person_match_dietBlacklist(self, matches_C, diet_pref_blacklist):
-        diet_match_blacklist = "SELECT DISTINCT diet_ref.user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
+        diet_match_blacklist = "SELECT DISTINCT user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
         data = (matches_C, diet_pref_blacklist)
         return self.db.execute_select(diet_match_blacklist, data)
 
@@ -134,7 +150,7 @@ class QueryManager:
     #     query = "SELECT user_id FROM queue where user_id = ANY(%s) ORDER BY timestamp"
     #     data = (matches_final,)
     #     return self.db.execute_select(query, data)
-
+ 
 
     # delete functions
 
