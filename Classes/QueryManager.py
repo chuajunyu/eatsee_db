@@ -51,9 +51,17 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
-    def get_user_telename(self, user_id):
-        query = "SELECT telename FROM users WHERE user_id = %s"
-        data = (user_id,)
+    # def get_user_telename(self, user_id):
+    #     query = "SELECT telename FROM users WHERE user_id = %s"
+    #     data = (user_id,)
+    #     record = self.db.execute_select(query, data)
+    #     return record
+    
+    def get_user_telename(self, user_id_list):
+        if not isinstance(user_id_list, list):
+            user_id_list = [user_id_list]
+        query = "SELECT telename FROM users WHERE user_id = ANY(%s)"
+        data = (user_id_list,)
         record = self.db.execute_select(query, data)
         return record
     
@@ -82,8 +90,8 @@ class QueryManager:
         return record
     
     def dlt_pref(self, user_id, dltpref, column, table):
-        query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} in %s"
-        data = (user_id, tuple(dltpref))
+        query = f"DELETE FROM {table} WHERE user_ref_id = %s AND {column} = ANY(%s)"
+        data = (user_id, dltpref)
         self.db.execute_change(query, data)
     
     # def add_pref(self, user_id, addpref, table):
@@ -151,6 +159,28 @@ class QueryManager:
     #     data = (matches_final,)
     #     return self.db.execute_select(query, data)
  
+
+    #chat room functions
+
+    def add_ChatroomUser(self, chatroom_id, user_id_list):
+        chatroom_datalist = []
+        for user_id in user_id_list:
+            chatroom_datalist.append((chatroom_id, user_id))
+            chatroom_datastr = str(chatroom_datalist)[1:-1]
+
+        query = f"INSERT INTO chat (chatroom_id, user_id) VALUES {chatroom_datastr}"
+        self.db.execute_change(query)
+
+    def delete_ChatroomUser(self, user_id_list):
+        query = f"DELETE from chat WHERE user_id = ANY(%s)"
+        data = (user_id_list,)
+        self.db.execute_change(query, data)
+
+    def delete_Chatroom(self, chatroom_id):
+        query = f"DELETE from chat WHERE chatroom_id = ANY(%s))"
+        data = (chatroom_id,)
+        self.db.execute_change(query, data)
+
 
     # delete functions
 

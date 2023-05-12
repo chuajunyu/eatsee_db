@@ -146,6 +146,22 @@ async def delete_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
 
 
+class AddChatroomUsers(BaseModel):
+    chatroom_id: int
+    user_id_list: list[int]
+
+@app.post("/add_ChatroomUser/")
+async def add_ChatroomUser(addchatroomusers: AddChatroomUsers):
+    return mc.add_ChatroomUser(addchatroomusers.chatroom_id, addchatroomusers.user_id_list)
+
+class DltChatroomUsers(BaseModel):
+    user_id_list: list[int]
+
+@app.post("/delete_ChatroomUser/")
+async def delete_ChatroomUser(dltchatroomusers: DltChatroomUsers):
+    return mc.delete_ChatroomUser(dltchatroomusers.user_id_list)
+
+
 # No classes
 
 @app.post("/show_age_choices/")
@@ -168,3 +184,6 @@ async def show_one_choice():
 async def show_all_choices():
     return mc.show_all_choices()
 
+@app.post("/test_function/")
+async def test_fucntion():
+    return mc.test_function()

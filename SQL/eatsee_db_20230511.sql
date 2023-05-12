@@ -57,23 +57,18 @@ CREATE TABLE gender_ref(
 );
 
 CREATE TABLE chat(
-	user_id     INT    NOT NULL,
-	partner_id  INT    NOT NULL,
+	chatroom_id  INT    NOT NULL,
+	user_id		 INT    NOT NULL UNIQUE,
 	CONSTRAINT fk_chat_user_users
 		FOREIGN KEY(user_id)
 			REFERENCES users(user_id)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE,
-	CONSTRAINT fk_chat_partner_users
-		FOREIGN KEY(partner_id)
-			REFERENCES users(user_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
 );
 
 CREATE TABLE queue
 (
-	user_id    INT                         NOT NULL,
+	user_id    INT                         NOT NULL UNIQUE,
 	timestamp  TIMESTAMP WITH TIME ZONE    NOT NULL,
 	CONSTRAINT fk_queue_users
 		FOREIGN KEY(user_id)
