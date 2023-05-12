@@ -357,7 +357,7 @@ class MainController:
         if not diet_pref:
                 # user_id_list = list(matches_C)
                 # user_id_list.append(user_id)
-                # self.qm.add_ChatroomUser(user_id, user_id_list)
+                # self.qm.add_chatroom_user(user_id, user_id_list)
                 return {
                         "code": 200,
                         "message": "Match found",
@@ -389,7 +389,7 @@ class MainController:
             if not matches_D_blacklist:
                 # user_id_list = list(matches_C)
                 # user_id_list.append(user_id)
-                # self.qm.add_ChatroomUser(user_id, user_id_list)
+                # self.qm.add_chatroom_user(user_id, user_id_list)
                 return {
                         "code": 200,
                         "message": "Match found",
@@ -412,16 +412,16 @@ class MainController:
                 else:
                     # user_id_list = list(matches_D)
                     # user_id_list.append(user_id)
-                    # self.qm.add_ChatroomUser(user_id, user_id_list)
+                    # self.qm.add_chatroom_user(user_id, user_id_list)
                     return {
                         "code": 200,
                         "message": "Match found",
                         "data": final_result
                     }
                 
-    def add_ChatroomUser(self, chatroom_id, user_id_list):
-        self.qm.delete_ChatroomUser(user_id_list)
-        self.qm.add_ChatroomUser(chatroom_id, user_id_list)
+    def add_chatroom_user(self, chatroom_id, user_id_list):
+        self.qm.delete_chatroom_user(user_id_list)
+        self.qm.add_chatroom_user(chatroom_id, user_id_list)
         user_telename_dict = self.qm.get_user_telename(user_id_list)
         user_telename_list = [row["telename"] for row in user_telename_dict]
         user_telename_str = str(user_telename_list)[1:-1]
@@ -431,8 +431,8 @@ class MainController:
                 "data": None
             }
 
-    def delete_ChatroomUser(self, user_id_list):
-        self.qm.delete_ChatroomUser(user_id_list)
+    def delete_chatroom_user(self, user_id_list):
+        self.qm.delete_chatroom_user(user_id_list)
         user_telename_dict = self.qm.get_user_telename(user_id_list)
         user_telename_list = [row["telename"] for row in user_telename_dict]
         user_telename_str = str(user_telename_list)[1:-1]
@@ -441,6 +441,25 @@ class MainController:
                 "message": f"Users {user_telename_str} successfully deleted from Chatroom.",
                 "data": None
             }
+    
+    def select_chatroom_user(self, chatroom_id):
+        record = self.qm.select_chatroom_user(chatroom_id)
+        user_id_list = [row["user_id"] for row in record]
+        return {
+                "code": 200,
+                "message": f"Successfully selected user_id from Chatroom {chatroom_id}.",
+                "data": user_id_list
+            } 
+    
+    def select_chatroom(self, user_id):
+        record = self.qm.select_chatroom_user(user_id)
+        chatroom_id = record[0]["chatroom_id"]
+        return {
+                "code": 200,
+                "message": f"Successfully selected chatroom_id {chatroom_id}.",
+                "data": chatroom_id
+            } 
+
       
 
     # DELETE ACCOUNT because no love

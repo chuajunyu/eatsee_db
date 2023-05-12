@@ -150,16 +150,30 @@ class AddChatroomUsers(BaseModel):
     chatroom_id: int
     user_id_list: list[int]
 
-@app.post("/add_ChatroomUser/")
-async def add_ChatroomUser(addchatroomusers: AddChatroomUsers):
-    return mc.add_ChatroomUser(addchatroomusers.chatroom_id, addchatroomusers.user_id_list)
+@app.post("/add_chatroom_user/")
+async def add_chatroom_user(addchatroomusers: AddChatroomUsers):
+    return mc.add_chatroom_user(addchatroomusers.chatroom_id, addchatroomusers.user_id_list)
 
 class DltChatroomUsers(BaseModel):
     user_id_list: list[int]
 
-@app.post("/delete_ChatroomUser/")
-async def delete_ChatroomUser(dltchatroomusers: DltChatroomUsers):
-    return mc.delete_ChatroomUser(dltchatroomusers.user_id_list)
+@app.post("/delete_chatroom_user/")
+async def delete_chatroom_user(dltchatroomusers: DltChatroomUsers):
+    return mc.delete_chatroom_user(dltchatroomusers.user_id_list)
+
+class SelectChatroomUsers(BaseModel):
+    chatroom_id: int
+
+@app.post("/select_chatroom_user/")
+async def select_chatroom_user(selectchatroomusers: SelectChatroomUsers):
+    return mc.select_chatroom_user(selectchatroomusers.chatroom_id)
+
+# class SelectChatroom(BaseModel):
+#     chatroom_id: int
+
+# @app.post("/select_chatroom/")
+# async def select_chatroom(selectchatroomusers: SelectChatroomUsers):
+#     return mc.select_chatroom_user(selectchatroomusers.chatroom_id)
 
 
 # No classes

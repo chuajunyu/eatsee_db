@@ -162,7 +162,7 @@ class QueryManager:
 
     #chat room functions
 
-    def add_ChatroomUser(self, chatroom_id, user_id_list):
+    def add_chatroom_user(self, chatroom_id, user_id_list):
         chatroom_datalist = []
         for user_id in user_id_list:
             chatroom_datalist.append((chatroom_id, user_id))
@@ -171,15 +171,25 @@ class QueryManager:
         query = f"INSERT INTO chat (chatroom_id, user_id) VALUES {chatroom_datastr}"
         self.db.execute_change(query)
 
-    def delete_ChatroomUser(self, user_id_list):
+    def delete_chatroom_user(self, user_id_list):
         query = f"DELETE from chat WHERE user_id = ANY(%s)"
         data = (user_id_list,)
         self.db.execute_change(query, data)
 
-    def delete_Chatroom(self, chatroom_id):
+    def delete_chatroom(self, chatroom_id):
         query = f"DELETE from chat WHERE chatroom_id = ANY(%s))"
         data = (chatroom_id,)
         self.db.execute_change(query, data)
+
+    def select_chatroom_user(self, chatroom_id):
+        query = f"SELECT user_id from chat WHERE chatroom_id = %s"
+        data = (chatroom_id,)
+        return self.db.execute_select(query, data)
+
+    def select_chatroom(self, user_id):
+        query = f"SELECT chatroom_id from chat WHERE user_id = %s)"
+        data = (user_id,)
+        return self.db.execute_select(query, data)
 
 
     # delete functions
