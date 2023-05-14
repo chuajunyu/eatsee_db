@@ -452,7 +452,7 @@ class MainController:
             } 
     
     def select_chatroom(self, user_id):
-        record = self.qm.select_chatroom_user(user_id)
+        record = self.qm.select_chatroom(user_id)
         chatroom_id = record[0]["chatroom_id"]
         return {
                 "code": 200,
