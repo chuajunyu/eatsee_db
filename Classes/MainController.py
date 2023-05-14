@@ -355,9 +355,9 @@ class MainController:
             }
 
         if not diet_pref:
-                # user_id_list = list(matches_C)
-                # user_id_list.append(user_id)
-                # self.qm.add_chatroom_user(user_id, user_id_list)
+                user_id_list = list(matches_C)
+                user_id_list.append(user_id)
+                self.qm.add_chatroom_user(user_id, user_id_list)
                 return {
                         "code": 200,
                         "message": "Match found",
@@ -387,9 +387,9 @@ class MainController:
             matches_D_blacklist = [row["user_ref_id"] for row in matches_D_blacklist]
 
             if not matches_D_blacklist:
-                # user_id_list = list(matches_C)
-                # user_id_list.append(user_id)
-                # self.qm.add_chatroom_user(user_id, user_id_list)
+                user_id_list = list(matches_C)
+                user_id_list.append(user_id)
+                self.qm.add_chatroom_user(user_id, user_id_list)
                 return {
                         "code": 200,
                         "message": "Match found",
@@ -410,9 +410,9 @@ class MainController:
                         "data": "matches_D empty"
                     }
                 else:
-                    # user_id_list = list(matches_D)
-                    # user_id_list.append(user_id)
-                    # self.qm.add_chatroom_user(user_id, user_id_list)
+                    user_id_list = list(matches_D)
+                    user_id_list.append(user_id)
+                    self.qm.add_chatroom_user(user_id, user_id_list)
                     return {
                         "code": 200,
                         "message": "Match found",
