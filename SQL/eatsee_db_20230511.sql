@@ -63,7 +63,7 @@ CREATE TABLE chat(
 		FOREIGN KEY(user_id)
 			REFERENCES users(user_id)
 			ON DELETE CASCADE
-			ON UPDATE CASCADE,
+			ON UPDATE CASCADE
 );
 
 CREATE TABLE queue
@@ -111,6 +111,30 @@ CREATE TABLE diet_ref(
 			ON UPDATE CASCADE,
 		FOREIGN KEY(diet_ref_id)
 			REFERENCES diet(diet_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+);
+
+CREATE TABLE area(
+	area_id    INT   GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
+	area_name  TEXT   NOT NULL
+);
+
+CREATE TABLE region(
+	region_id    INT   GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
+	region_name  TEXT   NOT NULL
+);
+
+CREATE TABLE area_region_ref(
+	area_ref_id   INT NOT NULL,
+	region_ref_id INT NOT NULL,
+	CONSTRAINT fk_arearegionref
+		FOREIGN KEY(area_ref_id)
+			REFERENCES area(area_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+		FOREIGN KEY(region_ref_id)
+			REFERENCES region(region_id)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
@@ -165,29 +189,7 @@ CREATE TABLE restaurant_diet_ref(
 			ON UPDATE CASCADE
 );
 
-CREATE TABLE area(
-	area_id    INT   GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
-	area_name  TEXT   NOT NULL
-);
 
-CREATE TABLE region(
-	region_id    INT   GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
-	region_name  TEXT   NOT NULL
-);
-
-CREATE TABLE area_region_ref(
-	area_ref_id   INT NOT NULL,
-	region_ref_id INT NOT NULL,
-	CONSTRAINT fk_arearegionref
-		FOREIGN KEY(area_ref_id)
-			REFERENCES area(area_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE,
-		FOREIGN KEY(region_ref_id)
-			REFERENCES region(region_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
 
 
 /* 
