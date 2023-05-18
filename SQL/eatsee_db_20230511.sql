@@ -9,7 +9,7 @@ CREATE TABLE age(
 );
 
 CREATE TABLE users (
-	user_id       INT         GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
+	user_id       INT         PRIMARY KEY   NOT NULL,
 	availability  BOOLEAN     NOT NULL,
 	telename      VARCHAR(60) NOT NULL,
 	age_ref_id    INT		  NOT NULL,
