@@ -162,6 +162,10 @@ class QueryManager:
 
     #chat room functions
 
+    def get_chatroom_id(self):
+        query = "SELECT MAX(chatroom_id) FROM chat"
+        return self.db.execute_select(query)
+
     def add_chatroom_user(self, chatroom_id, user_id_list):
         chatroom_datalist = []
         for user_id in user_id_list:

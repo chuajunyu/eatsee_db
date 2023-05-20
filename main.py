@@ -163,19 +163,19 @@ async def delete_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
 
 
-class AddChatroomUsers(BaseModel):
-    chatroom_id: int
+# class AddChatroomUsers(BaseModel):
+#     chatroom_id: int
+#     user_id_list: list[int]
+
+class ChatroomUsers(BaseModel):
     user_id_list: list[int]
 
 @app.post("/add_chatroom_user/")
-async def add_chatroom_user(addchatroomusers: AddChatroomUsers):
-    return mc.add_chatroom_user(addchatroomusers.chatroom_id, addchatroomusers.user_id_list)
-
-class DltChatroomUsers(BaseModel):
-    user_id_list: list[int]
+async def add_chatroom_user(addchatroomusers: ChatroomUsers):
+    return mc.add_chatroom_user(addchatroomusers.user_id_list)
 
 @app.post("/delete_chatroom_user/")
-async def delete_chatroom_user(dltchatroomusers: DltChatroomUsers):
+async def delete_chatroom_user(dltchatroomusers: ChatroomUsers):
     return mc.delete_chatroom_user(dltchatroomusers.user_id_list)
 
 class SelectChatroomUsers(BaseModel):

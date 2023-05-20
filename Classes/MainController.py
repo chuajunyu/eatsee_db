@@ -215,20 +215,8 @@ class MainController:
                 "new prefs": finalpref
                 }
             }
-        
-
-
-    # QUEUE
-    def queued_users(self):
-        # check if user already in queue
-        user_id_queued = self.qm.get_info("user_id", "queue")
-        user_id_queued_list = [row["user_id"] for row in user_id_queued]
-        return {
-            "code": 200,
-            "message": "Successfully obtained user_ids currently in queue.",
-            "data": user_id_queued_list
-        }
     
+    # CHECK TABLES FOR USERS
     def check_table_for_user(self, user_id, table):
         if len(self.qm.get_user_info(user_id, "*", table)) == 1:
             return {
@@ -244,6 +232,17 @@ class MainController:
             }
 
 
+    # QUEUE
+    def queued_users(self):
+        # check if user already in queue
+        user_id_queued = self.qm.get_info("user_id", "queue")
+        user_id_queued_list = [row["user_id"] for row in user_id_queued]
+        return {
+            "code": 200,
+            "message": "Successfully obtained user_ids currently in queue.",
+            "data": user_id_queued_list
+        }
+    
     def queue(self, user_id):
         telename = self.get_user_info(user_id, "telename")[0]["telename"]
         user_id_queued_list = self.queued_users()["data"]
@@ -398,7 +397,14 @@ class MainController:
                         "data": final_result
                     }
                 
-    def add_chatroom_user(self, chatroom_id, user_id_list):
+
+    # CHATROOM
+    def add_chatroom_user(self, user_id_list):
+        chatroom_id = self.qm.get_chatroom_id()[0]["max"]
+        if not chatroom_id:
+            chatroom_id = 1
+        else:
+            chatroom_id += 1
         self.qm.delete_chatroom_user(user_id_list)
         self.qm.add_chatroom_user(chatroom_id, user_id_list)
         user_telename_dict = self.qm.get_user_telename(user_id_list)
@@ -463,7 +469,9 @@ class MainController:
     
 
     def test_function(self):
-        matches_C = [1,2,3]
-        record = self.qm.get_user_telename(matches_C)
-        final_result = [(1234, row["telename"]) for row in record]
-        return final_result
+        record = self.qm.get_chatroom_id()
+        result = record[0]["max"]
+        if result:
+            return result+1
+        else:
+            return "oh noes"
