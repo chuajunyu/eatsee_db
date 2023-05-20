@@ -346,7 +346,7 @@ class MainController:
                     diet_pref_blacklist.append(pref+1)
                 else:
                     diet_pref_blacklist.append(pref-1)
-            
+        
             matches_D_blacklist = self.qm.person_match_dietBlacklist(matches_C, diet_pref_blacklist)
             matches_D_blacklist = [row["user_ref_id"] for row in matches_D_blacklist]
 
