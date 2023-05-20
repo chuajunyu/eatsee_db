@@ -5,7 +5,7 @@ class QueryManager:
     def __init__(self):
         self.db = Database()
 
-    def select_user(self, telename):
+    def select_user(self, user_id):
         """
         Select users with a given telegram username
 
@@ -15,8 +15,8 @@ class QueryManager:
         Return:
             - List of users with that telegram username
         """
-        query = "SELECT * FROM users WHERE telename = %s"
-        data = (telename,)
+        query = "SELECT * FROM users WHERE user_id = %s"
+        data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
@@ -31,7 +31,7 @@ class QueryManager:
         record = self.db.execute_select(query)
         return record
 
-    def insert_user(self, chat_id, telename, age, gender):
+    def insert_user(self, availability, user_id, telename, age, gender):
         """
         Insert a user into the database
 
@@ -40,9 +40,9 @@ class QueryManager:
                             (might be deprecated)
             - telename: Telegram username of new user to be inserted
         """
-        query = """INSERT INTO users (user_id, telename, age_ref_id, gender_ref_id)
-                VALUES (%s, %s, %s, %s)"""
-        data = (chat_id, telename, age, gender)
+        query = """INSERT INTO users (user_id, availability, telename, age_ref_id, gender_ref_id)
+                VALUES (%s, %s, %s, %s, %s)"""
+        data = (user_id, availability, telename, age, gender)
         self.db.execute_change(query, data)
 
     def get_user_id(self, telename):
@@ -65,9 +65,9 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
-    def get_user_info(self, telename, column, table="users"):
-        query = f"SELECT {column} FROM {table} WHERE telename = %s"
-        data = (telename,)
+    def get_user_info(self, user_id, column, table="users"):
+        query = f"SELECT {column} FROM {table} WHERE user_id = %s"
+        data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
@@ -76,9 +76,9 @@ class QueryManager:
         record = self.db.execute_select(query)
         return record
     
-    def update_user_info(self, telename, value, column):
-        query = f"UPDATE users SET {column} = %s WHERE telename = %s"
-        data = (value, telename)
+    def update_user_info(self, user_id, value, column):
+        query = f"UPDATE users SET {column} = %s WHERE user_id = %s"
+        data = (value, user_id)
         self.db.execute_change(query, data)
 
     # preference functions
@@ -112,7 +112,7 @@ class QueryManager:
     # queue functions
 
     def queue(self, user_id):
-        query = "INSERT INTO queue VALUES (%s, current_timestamp)"
+        query = "INSERT INTO queue (user_id, timestamp) VALUES (%s, current_timestamp)"
         data = (user_id,)
         self.db.execute_change(query, data)
     

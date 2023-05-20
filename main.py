@@ -18,132 +18,137 @@ async def root():
 
 class User(BaseModel):
     availability: bool
+    user_id: int
     telename: str
     age: int
     gender: int
 
 @app.post("/create_user/")
 async def create_user(user: User):
-    return mc.insert_user(user.availability, user.telename, user.age, user.gender)
+    return mc.insert_user(user.availability, user.user_id, user.telename, user.age, user.gender)
 
 
 class Telename(BaseModel):
     telename: str
 
-@app.post("/show_profile/")
-async def show_profile(telename: Telename):
-    return mc.show_profile(telename.telename)
-
 @app.post("/get_user_id/")
 async def get_user_id(telename: Telename):
     return mc.get_user_id(telename.telename)
 
+
+class UserId(BaseModel):
+    user_id: int
+
+@app.post("/show_profile/")
+async def show_profile(user_id: UserId):
+    return mc.show_profile(user_id.user_id)
+
 @app.post("/queue/")
-async def queue(telename: Telename):
-    return mc.queue(telename.telename)
+async def queue(user_id: UserId):
+    return mc.queue(user_id.user_id)
 
 @app.post("/dequeue/")
-async def dequeue(telename: Telename):
-    return mc.dequeue(telename.telename)
+async def dequeue(user_id: UserId):
+    return mc.dequeue(user_id.user_id)
 
 @app.post("/match/")
-async def match(telename: Telename):
-    return mc.person_match(telename.telename)
+async def match(user_id: UserId):
+    return mc.person_match(user_id.user_id)
 
 @app.post("/select_age_preferences/")
-async def select_age_preferences(telename: Telename):
-    return mc.select_pref(telename.telename, "age_ref_id", "age_ref")
+async def select_age_preferences(user_id: UserId):
+    return mc.select_pref(user_id.user_id, "age_ref_id", "age_ref")
 
 @app.post("/select_gender_preferences/")
-async def select_gender_preferences(telename: Telename):
-    return mc.select_pref(telename.telename, "gender_ref_id", "gender_ref")
+async def select_gender_preferences(user_id: UserId):
+    return mc.select_pref(user_id.user_id, "gender_ref_id", "gender_ref")
 
 @app.post("/select_cuisine_preferences/")
-async def select_cuisine_preferences(telename: Telename):
-    return mc.select_pref(telename.telename, "cuisine_ref_id", "cuisine_ref")
+async def select_cuisine_preferences(user_id: UserId):
+    return mc.select_pref(user_id.user_id, "cuisine_ref_id", "cuisine_ref")
 
 @app.post("/select_diet_preferences/")
-async def select_diet_preferences(telename: Telename):
-    return mc.select_pref(telename.telename, "diet_ref_id", "diet_ref")
+async def select_diet_preferences(user_id: UserId):
+    return mc.select_pref(user_id.user_id, "diet_ref_id", "diet_ref")
 
 @app.post("/delete_user/")
-async def delete_user(telename: Telename):
-    return mc.delete_user(telename.telename)
+async def delete_user(user_id: UserId):
+    return mc.delete_user(user_id.user_id)
 
 
 class UserCharacteristics(BaseModel):
-    telename: str
+    user_id: int
     characteristic: int
 
 @app.post("/change_age/")
 async def change_age(usercharacteristic: UserCharacteristics):
-    return mc.change_user_info(usercharacteristic.telename, usercharacteristic.characteristic, "age_ref_id", "age")
+    return mc.change_user_info(usercharacteristic.user_id, usercharacteristic.characteristic, "age_ref_id", "age")
 
 @app.post("/change_gender/")
 async def change_gender(usercharacteristic: UserCharacteristics):
-    return mc.change_user_info(usercharacteristic.telename, usercharacteristic.characteristic, "gender_ref_id", "gender")
+    return mc.change_user_info(usercharacteristic.user_id, usercharacteristic.characteristic, "gender_ref_id", "gender")
 
 
 class UserAvailability(BaseModel):
-    telename: str
+    user_id: int
     availability: bool
 
 @app.post("/change_availability/")
 async def change_availability(useravailability: UserAvailability):
-    return mc.change_user_info(useravailability.telename, useravailability.availability, "availability", "availability")
+    return mc.change_user_info(useravailability.user_id, useravailability.availability, "availability", "availability")
 
 
 class Preferences(BaseModel):
-    telename:str
+    user_id: int
     preferences: list[int]
 
 @app.post("/change_age_preferences/")
 async def change_age_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", True, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "age_ref_id", "age_ref", True, True)
 
 @app.post("/change_gender_preferences/")
 async def change_gender_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", True, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "gender_ref_id", "gender_ref", True, True)
 
 @app.post("/change_cuisine_preferences/")
 async def change_cuisine_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, True)
 
 @app.post("/change_diet_preferences/")
 async def change_diet_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", True, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", True, True)
 
 @app.post("/add_age_preferences/")
 async def add_age_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", True, False)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "age_ref_id", "age_ref", True, False)
 
 @app.post("/add_gender_preferences/")
 async def add_gender_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", True, False)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "gender_ref_id", "gender_ref", True, False)
 
 @app.post("/add_cuisine_preferences/")
 async def add_cuisine_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, False)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "cuisine_ref_id", "cuisine_ref", True, False)
 
 @app.post("/add_diet_preferences/")
 async def add_diet_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", True, False)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", True, False)
 
 @app.post("/delete_age_preferences/")
 async def delete_age_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "age_ref_id", "age_ref", False, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "age_ref_id", "age_ref", False, True)
 
 @app.post("/delete_gender_preferences/")
 async def delete_gender_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "gender_ref_id", "gender_ref", False, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "gender_ref_id", "gender_ref", False, True)
 
 @app.post("/delete_cuisine_preferences/")
 async def delete_cuisine_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "cuisine_ref_id", "cuisine_ref", False, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "cuisine_ref_id", "cuisine_ref", False, True)
 
 @app.post("/delete_diet_preferences/")
 async def delete_diet_preferences(preferences: Preferences):
-    return mc.change_pref(preferences.telename, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
+    return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
 
 
 class AddChatroomUsers(BaseModel):
