@@ -219,7 +219,7 @@ class MainController:
 
 
     # QUEUE
-    def check_queue(self):
+    def queued_users(self):
         # check if user already in queue
         user_id_queued = self.qm.get_info("user_id", "queue")
         user_id_queued_list = [row["user_id"] for row in user_id_queued]
@@ -228,10 +228,25 @@ class MainController:
             "message": "Successfully obtained user_ids currently in queue.",
             "data": user_id_queued_list
         }
+    
+    def check_table_for_user(self, user_id, table):
+        if len(self.qm.get_user_info(user_id, "*", table)) == 1:
+            return {
+                "code": 200,
+                "message": f"User found in {table}",
+                "data": True
+            }
+        else:
+            return {
+                "code": 404,
+                "message": f"User not found in {table}",
+                "data": False
+            }
+
 
     def queue(self, user_id):
         telename = self.get_user_info(user_id, "telename")[0]["telename"]
-        user_id_queued_list = self.check_queue()["data"]
+        user_id_queued_list = self.queued_users()["data"]
 
         if user_id in user_id_queued_list:
             return {

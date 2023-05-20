@@ -71,6 +71,18 @@ async def select_cuisine_preferences(user_id: UserId):
 async def select_diet_preferences(user_id: UserId):
     return mc.select_pref(user_id.user_id, "diet_ref_id", "diet_ref")
 
+@app.post("/check_users_for_user/")
+async def check_users_for_user(user_id: UserId):
+    return mc.check_table_for_user(user_id.user_id, "users")
+
+@app.post("/check_queue_for_user/")
+async def check_queue_for_user(user_id: UserId):
+    return mc.check_table_for_user(user_id.user_id, "queue")
+
+@app.post("/check_chat_for_user/")
+async def check_chat_for_user(user_id: UserId):
+    return mc.check_table_for_user(user_id.user_id, "chat")
+
 @app.post("/delete_user/")
 async def delete_user(user_id: UserId):
     return mc.delete_user(user_id.user_id)
@@ -184,19 +196,19 @@ async def select_chatroom(selectchatroomusers: SelectChatroomUsers):
 # No classes
 
 @app.post("/show_age_choices/")
-async def show_one_choice():
+async def show_age_choice():
     return mc.show_one_choice("age_id", "age_range", "age")
 
 @app.post("/show_gender_choices/")
-async def show_one_choice():
+async def show_gender_choice():
     return mc.show_one_choice("gender_id", "gender", "gender")
 
 @app.post("/show_cuisine_choices/")
-async def show_one_choice():
+async def show_cuisine_choice():
     return mc.show_one_choice("cuisine_id", "cuisine", "cuisine")
 
 @app.post("/show_diet_choices/")
-async def show_one_choice():
+async def show_diet_choice():
     return mc.show_one_choice("diet_id", "diet_res_type", "diet")
 
 @app.post("/show_all_choices/")
