@@ -189,8 +189,8 @@ class SelectChatroom(BaseModel):
     chatroom_id: int
 
 @app.post("/select_chatroom/")
-async def select_chatroom(selectchatroomusers: SelectChatroomUsers):
-    return mc.select_chatroom_user(selectchatroomusers.chatroom_id)
+async def select_chatroom(selectchatroom: SelectChatroom):
+    return mc.select_chatroom(selectchatroom.chatroom_id)
 
 
 # No classes
