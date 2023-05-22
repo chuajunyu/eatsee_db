@@ -206,7 +206,7 @@ VALUES ('Male'), ('Female'), ('Non Binary');
 INSERT INTO cuisine (cuisine)
 VALUES ('Chinese'), ('Malay'), ('Indian'), ('Western'), ('Korean'), ('Japanese'), ('Indonesian'), ('Vietnamese');
 
-INSERT INTO diet (diet_res_type)
+INSERT INTO diet (diet_id, diet_res_type)
 VALUES (1, 'Halal'), (2, 'No Halal'), (3, 'Vegetarian'), (4, 'No Vegetarian'), (5, 'Vegan'), (6, 'No Vegan');
 
 INSERT INTO area (area_name)
