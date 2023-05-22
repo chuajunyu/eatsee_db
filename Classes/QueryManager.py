@@ -5,7 +5,7 @@ class QueryManager:
     def __init__(self):
         self.db = Database()
 
-    def select_user(self, telename):
+    def select_user(self, user_id):
         """
         Select users with a given telegram username
 
@@ -15,8 +15,8 @@ class QueryManager:
         Return:
             - List of users with that telegram username
         """
-        query = "SELECT * FROM users WHERE telename = %s"
-        data = (telename,)
+        query = "SELECT * FROM users WHERE user_id = %s"
+        data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
@@ -64,9 +64,9 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
-    def get_user_info(self, telename, column, table="users"):
-        query = f"SELECT {column} FROM {table} WHERE telename = %s"
-        data = (telename,)
+    def get_user_info(self, user_id, column, table="users"):
+        query = f"SELECT {column} FROM {table} WHERE user_id = %s"
+        data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
     
@@ -75,9 +75,9 @@ class QueryManager:
         record = self.db.execute_select(query)
         return record
     
-    def update_user_info(self, telename, value, column):
-        query = f"UPDATE users SET {column} = %s WHERE telename = %s"
-        data = (value, telename)
+    def update_user_info(self, user_id, value, column):
+        query = f"UPDATE users SET {column} = %s WHERE user_id = %s"
+        data = (value, user_id)
         self.db.execute_change(query, data)
 
     # preference functions
@@ -111,7 +111,7 @@ class QueryManager:
     # queue functions
 
     def queue(self, user_id):
-        query = "INSERT INTO queue VALUES (%s, current_timestamp)"
+        query = "INSERT INTO queue (user_id, timestamp) VALUES (%s, current_timestamp)"
         data = (user_id,)
         self.db.execute_change(query, data)
     
@@ -160,6 +160,10 @@ class QueryManager:
  
 
     #chat room functions
+
+    def get_chatroom_id(self):
+        query = "SELECT MAX(chatroom_id) FROM chat"
+        return self.db.execute_select(query)
 
     def add_chatroom_user(self, chatroom_id, user_id_list):
         chatroom_datalist = []

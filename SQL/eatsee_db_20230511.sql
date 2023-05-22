@@ -96,7 +96,7 @@ CREATE TABLE cuisine_ref(
 );
 
 CREATE TABLE diet(
-	diet_id         INT     GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
+	diet_id         INT     PRIMARY KEY   NOT NULL,
 	diet_res_type   TEXT
 );
 
@@ -207,7 +207,7 @@ INSERT INTO cuisine (cuisine)
 VALUES ('Chinese'), ('Malay'), ('Indian'), ('Western'), ('Korean'), ('Japanese'), ('Indonesian'), ('Vietnamese');
 
 INSERT INTO diet (diet_res_type)
-VALUES ('Halal'), ('Vegetarian'), ('Vegan');
+VALUES (1, 'Halal'), (2, 'No Halal'), (3, 'Vegetarian'), (4, 'No Vegetarian'), (5, 'Vegan'), (6, 'No Vegan');
 
 INSERT INTO area (area_name)
 VALUES ('Bishan'), ('Bukit Merah'), ('Bukit Timah'), ('Downtown Core'), ('Geylang'), ('Kallang'), ('Marina East'), ('Marina South'), ('Marine Parade'), ('Museum'), 
