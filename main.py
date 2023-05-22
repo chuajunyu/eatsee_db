@@ -17,14 +17,14 @@ async def root():
 
 
 class User(BaseModel):
-    availability: bool
+    id: int
     telename: str
     age: int
     gender: int
 
 @app.post("/create_user/")
 async def create_user(user: User):
-    return mc.insert_user(user.availability, user.telename, user.age, user.gender)
+    return mc.insert_user(user.id, user.telename, user.age, user.gender)
 
 
 class Telename(BaseModel):

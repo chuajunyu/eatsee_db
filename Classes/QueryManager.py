@@ -31,18 +31,17 @@ class QueryManager:
         record = self.db.execute_select(query)
         return record
 
-    def insert_user(self, chat_id, telename, age, gender):
+    def insert_user(self, user_id, telename, age, gender):
         """
         Insert a user into the database
 
         Input:
-            - availability: Boolean value describing availability of user
-                            (might be deprecated)
+            - user_id: Unique identifier of the User
             - telename: Telegram username of new user to be inserted
         """
         query = """INSERT INTO users (user_id, telename, age_ref_id, gender_ref_id)
                 VALUES (%s, %s, %s, %s)"""
-        data = (chat_id, telename, age, gender)
+        data = (user_id, telename, age, gender)
         self.db.execute_change(query, data)
 
     def get_user_id(self, telename):

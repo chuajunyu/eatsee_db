@@ -22,7 +22,7 @@ class MainController:
         print(self.qm.select_user(telename))
         return self.qm.select_user(telename)
 
-    def insert_user(self, availability: bool, telename: str, age: int, gender: int):
+    def insert_user(self, user_id: int, telename: str, age: int, gender: int):
         """
         Inserts a user into the database
         
@@ -40,7 +40,7 @@ class MainController:
                 "message": "User creation failed: User already exists.",
                 "data": None
                 }
-        self.qm.insert_user(availability, telename, age, gender)
+        self.qm.insert_user(user_id, telename, age, gender)
         return {
             "code": 200,
             "message": f"User {telename} successfully created.",
