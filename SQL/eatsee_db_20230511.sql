@@ -9,7 +9,7 @@ CREATE TABLE age(
 );
 
 CREATE TABLE users (
-	user_id       INT         PRIMARY KEY   NOT NULL,
+	user_id       BIGINT         PRIMARY KEY   NOT NULL,
 	telename      VARCHAR(60) NOT NULL,
 	age_ref_id    INT		  NOT NULL,
 	gender_ref_id INT		  NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE users (
 
 
 CREATE TABLE age_ref(	
-	user_ref_id   INT   NOT NULL,
+	user_ref_id   BIGINT   NOT NULL,
 	age_ref_id    INT   NOT NULL,
 	CONSTRAINT fk_age
 		FOREIGN KEY(user_ref_id)
@@ -41,7 +41,7 @@ CREATE TABLE age_ref(
 );
 
 CREATE TABLE gender_ref(
-	user_ref_id    INT  NOT NULL,
+	user_ref_id    BIGINT  NOT NULL,
 	gender_ref_id  INT  NOT NULL,
 	CONSTRAINT fk_gender
 		FOREIGN KEY(user_ref_id)
@@ -57,7 +57,7 @@ CREATE TABLE gender_ref(
 
 CREATE TABLE chat(
 	chatroom_id  INT    NOT NULL,
-	user_id		 INT    NOT NULL UNIQUE,
+	user_id		 BIGINT    NOT NULL UNIQUE,
 	CONSTRAINT fk_chat_user_users
 		FOREIGN KEY(user_id)
 			REFERENCES users(user_id)
@@ -67,7 +67,7 @@ CREATE TABLE chat(
 
 CREATE TABLE queue
 (
-	user_id    INT                         NOT NULL UNIQUE,
+	user_id    BIGINT                         NOT NULL UNIQUE,
 	timestamp  TIMESTAMP WITH TIME ZONE    NOT NULL,
 	CONSTRAINT fk_queue_users
 		FOREIGN KEY(user_id)
@@ -82,7 +82,7 @@ CREATE TABLE cuisine(
 );
 
 CREATE TABLE cuisine_ref(
-	user_ref_id     INT   NOT NULL,
+	user_ref_id     BIGINT   NOT NULL,
 	cuisine_ref_id  INT   NOT NULL,
 	CONSTRAINT fk_cuisine
 		FOREIGN KEY(user_ref_id)
@@ -101,7 +101,7 @@ CREATE TABLE diet(
 );
 
 CREATE TABLE diet_ref(
-	user_ref_id INT NOT NULL,
+	user_ref_id BIGINT NOT NULL,
 	diet_ref_id INT NOT NULL,
 	CONSTRAINT fk_diet
 		FOREIGN KEY(user_ref_id)
