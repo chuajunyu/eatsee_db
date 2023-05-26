@@ -195,7 +195,7 @@ class QueryManager:
         return self.db.execute_select(query, data)
 
     def select_chatroom(self, user_id):
-        query = f"SELECT chatroom_id from chat WHERE user_id = %s)"
+        query = f"SELECT chatroom_id from chat WHERE user_id = %s"
         data = (user_id,)
         return self.db.execute_select(query, data)
 
