@@ -148,9 +148,14 @@ class QueryManager:
         return self.db.execute_select(cuisine_match_C, data)
     
     def person_match_dietBlacklist(self, matches_C, diet_pref_blacklist):
-        diet_match_blacklist = "SELECT DISTINCT user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id != ANY(%s)"
+        diet_match_blacklist = "SELECT DISTINCT user_ref_id FROM diet_ref WHERE user_ref_id = ANY(%s) AND diet_ref_id = ANY(%s)"
         data = (matches_C, diet_pref_blacklist)
         return self.db.execute_select(diet_match_blacklist, data)
+    
+    def person_match_pax(self, penultimate_match, pax_pref):
+        pax_match_P = "SELECT user_ref_id, pax_ref_id FROM pax_ref LEFT JOIN queue ON pax_ref.user_ref_id = queue.user_id WHERE user_ref_id = ANY(%s) and pax_ref_id = ANY(%s) GROUP BY user_ref_id, pax_ref_id ORDER BY MIN(timestamp), pax_ref_id DESC"
+        data = (penultimate_match, pax_pref)
+        return self.db.execute_select(pax_match_P, data)
 
     # # to be used for problem: queued user dequeues the moment they are matched with someone, hence need to check if they still in queue and want to be matched. Need to change MainController to use this function.
     # def person_match_timestamp(self, matches_final):

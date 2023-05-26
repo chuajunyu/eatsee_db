@@ -318,11 +318,12 @@ class MainController:
         cuisine_pref = [row["cuisine_ref_id"] for row in cuisine_pref]
         diet_pref = self.qm.select_pref(user_id, "diet_ref_id", "diet_ref")
         diet_pref = [row["diet_ref_id"] for row in diet_pref]
+        pax_pref = self.qm.select_pref(user_id, "pax_ref_id", "pax_ref")
+        pax_pref = [row["pax_ref_id"] for row in pax_pref]
 
 
         matches_C = self.qm.person_match_cuisine(matches_B, cuisine_pref)
         matches_C = [row["user_ref_id"] for row in matches_C]
-        final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_C]
 
         if not matches_C:
             self.queue(user_id)
@@ -333,14 +334,7 @@ class MainController:
             }
 
         if not diet_pref:
-                user_id_list = list(matches_C)
-                user_id_list.append(user_id)
-                self.qm.add_chatroom_user(user_id, user_id_list)
-                return {
-                        "code": 200,
-                        "message": "Match found",
-                        "data": final_result
-                    }
+            penultimate_matches = matches_C
         
         # Match D
         
@@ -364,22 +358,11 @@ class MainController:
             matches_D_blacklist = self.qm.person_match_dietBlacklist(matches_C, diet_pref_blacklist)
             matches_D_blacklist = [row["user_ref_id"] for row in matches_D_blacklist]
 
-            if not matches_D_blacklist:
-                user_id_list = list(matches_C)
-                user_id_list.append(user_id)
-                self.qm.add_chatroom_user(user_id, user_id_list)
-                return {
-                        "code": 200,
-                        "message": "Match found",
-                        "data": final_result
-                    }
-            else:
+            if matches_D_blacklist:
                 matches_D = []
                 for match in matches_C:
                     if match not in matches_D_blacklist:
                         matches_D.append(match)
-
-                final_result = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in matches_D]
 
                 if not matches_D:
                     return {
@@ -388,15 +371,45 @@ class MainController:
                         "data": "matches_D empty"
                     }
                 else:
-                    user_id_list = list(matches_D)
-                    user_id_list.append(user_id)
-                    self.qm.add_chatroom_user(user_id, user_id_list)
-                    return {
-                        "code": 200,
-                        "message": "Match found",
-                        "data": final_result
-                    }
-                
+                    penultimate_matches = matches_D
+        
+        # Match P
+
+        matches_P = self.qm.person_match_pax(penultimate_matches, pax_pref)
+        matches_P_users = []
+        matches_P_paxes = []
+        final_matches = []
+
+        for row in matches_P:
+            matches_P_users.append(row["user_ref_id"])
+            matches_P_paxes.append(row["pax_ref_id"])
+
+        current_user_id = matches_P_users[0]
+        matches_P_user_id_list = [current_user_id]
+        for each_user_id in matches_P_users:
+            if current_user_id != each_user_id:
+                matches_P_user_id_list.append(each_user_id)
+                current_user_id = each_user_id
+
+        matches_P_paxes.sort(reverse=True)
+        for each_pax in matches_P_paxes:
+            if matches_P_paxes.count(each_pax) >= each_pax-1:
+                final_pax = each_pax
+                break
+        
+        counter = 1
+        for row in matches_P:
+            if row["pax_ref_id"] == final_pax and counter < final_pax:
+                counter += 1
+                final_matches.append(row["user_ref_id"])
+
+        final_id_and_names = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in final_matches]
+
+        return {
+            "code": 200,
+            "message": "Match found.",
+            "data": final_id_and_names
+        }            
 
     # CHATROOM
     def add_chatroom_user(self, user_id_list):
@@ -469,9 +482,6 @@ class MainController:
     
 
     def test_function(self):
-        record = self.qm.get_chatroom_id()
-        result = record[0]["max"]
-        if result:
-            return result+1
-        else:
-            return "oh noes"
+        record = self.qm.person_match_pax([1,2],[2,3,4,5])
+        result = record
+        return result

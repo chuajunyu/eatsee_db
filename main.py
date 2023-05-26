@@ -129,6 +129,10 @@ async def change_cuisine_preferences(preferences: Preferences):
 async def change_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", True, True)
 
+@app.post("/change_pax_preferences/")
+async def change_pax_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.user_id, preferences.preferences, "pax_ref_id", "pax_ref", True, True)
+
 @app.post("/add_age_preferences/")
 async def add_age_preferences(preferences: Preferences):
     return mc.change_pref(preferences.user_id, preferences.preferences, "age_ref_id", "age_ref", True, False)
@@ -144,6 +148,10 @@ async def add_cuisine_preferences(preferences: Preferences):
 @app.post("/add_diet_preferences/")
 async def add_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", True, False)
+
+@app.post("/add_pax_preferences/")
+async def add_pax_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.user_id, preferences.preferences, "diet_pax_id", "pax_ref", True, False)
 
 @app.post("/delete_age_preferences/")
 async def delete_age_preferences(preferences: Preferences):
@@ -161,6 +169,9 @@ async def delete_cuisine_preferences(preferences: Preferences):
 async def delete_diet_preferences(preferences: Preferences):
     return mc.change_pref(preferences.user_id, preferences.preferences, "diet_ref_id", "diet_ref", False, True)
 
+@app.post("/delete_pax_preferences/")
+async def delete_pax_preferences(preferences: Preferences):
+    return mc.change_pref(preferences.user_id, preferences.preferences, "diet_pax_id", "pax_ref", False, True)
 
 # class AddChatroomUsers(BaseModel):
 #     chatroom_id: int

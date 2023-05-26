@@ -8,7 +8,22 @@ CREATE TABLE age(
 	age_range  varchar(10)   NOT NULL
 );
 
-CREATE TABLE users (
+CREATE TABLE cuisine(
+	cuisine_id  INT     GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
+	cuisine     TEXT
+);
+
+CREATE TABLE diet(
+	diet_id         INT     PRIMARY KEY   NOT NULL,
+	diet_res_type   TEXT
+);
+
+CREATE TABLE pax(
+	pax_id          INT     PRIMARY KEY   NOT NULL,
+	pax_number      INT
+);
+
+CREATE TABLE users(
 	user_id       BIGINT         PRIMARY KEY   NOT NULL,
 	telename      VARCHAR(60) NOT NULL,
 	age_ref_id    INT		  NOT NULL,
@@ -24,7 +39,6 @@ CREATE TABLE users (
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
-
 
 CREATE TABLE age_ref(	
 	user_ref_id   BIGINT   NOT NULL,
@@ -52,7 +66,48 @@ CREATE TABLE gender_ref(
 			REFERENCES gender(gender_id)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
+);
 
+CREATE TABLE cuisine_ref(
+	user_ref_id     BIGINT   NOT NULL,
+	cuisine_ref_id  INT   NOT NULL,
+	CONSTRAINT fk_cuisine
+		FOREIGN KEY(user_ref_id)
+			REFERENCES users(user_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+		FOREIGN KEY(cuisine_ref_id)
+			REFERENCES cuisine(cuisine_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+);
+
+CREATE TABLE diet_ref(
+	user_ref_id BIGINT NOT NULL,
+	diet_ref_id INT NOT NULL,
+	CONSTRAINT fk_diet
+		FOREIGN KEY(user_ref_id)
+			REFERENCES users(user_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+		FOREIGN KEY(diet_ref_id)
+			REFERENCES diet(diet_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+);
+
+CREATE TABLE pax_ref(
+	user_ref_id     BIGINT   NOT NULL,
+	pax_ref_id  INT   NOT NULL,
+	CONSTRAINT fk_pax
+		FOREIGN KEY(user_ref_id)
+			REFERENCES users(user_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+		FOREIGN KEY(pax_ref_id)
+			REFERENCES pax(pax_id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
 );
 
 CREATE TABLE chat(
@@ -72,44 +127,6 @@ CREATE TABLE queue
 	CONSTRAINT fk_queue_users
 		FOREIGN KEY(user_id)
 			REFERENCES users(user_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-
-CREATE TABLE cuisine(
-	cuisine_id  INT     GENERATED ALWAYS AS IDENTITY   PRIMARY KEY   NOT NULL,
-	cuisine     TEXT
-);
-
-CREATE TABLE cuisine_ref(
-	user_ref_id     BIGINT   NOT NULL,
-	cuisine_ref_id  INT   NOT NULL,
-	CONSTRAINT fk_cuisine
-		FOREIGN KEY(user_ref_id)
-			REFERENCES users(user_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE,
-		FOREIGN KEY(cuisine_ref_id)
-			REFERENCES cuisine(cuisine_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-
-CREATE TABLE diet(
-	diet_id         INT     PRIMARY KEY   NOT NULL,
-	diet_res_type   TEXT
-);
-
-CREATE TABLE diet_ref(
-	user_ref_id BIGINT NOT NULL,
-	diet_ref_id INT NOT NULL,
-	CONSTRAINT fk_diet
-		FOREIGN KEY(user_ref_id)
-			REFERENCES users(user_id)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE,
-		FOREIGN KEY(diet_ref_id)
-			REFERENCES diet(diet_id)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
@@ -208,6 +225,9 @@ VALUES ('Chinese'), ('Malay'), ('Indian'), ('Western'), ('Korean'), ('Japanese')
 
 INSERT INTO diet (diet_id, diet_res_type)
 VALUES (1, 'Halal'), (2, 'No Halal'), (3, 'Vegetarian'), (4, 'No Vegetarian'), (5, 'Vegan'), (6, 'No Vegan');
+
+INSERT INTO diet (diet_id, diet_res_type)
+VALUES (2, 2), (3, 3), (4, 4), (5, 5), (6, 6);
 
 INSERT INTO area (area_name)
 VALUES ('Bishan'), ('Bukit Merah'), ('Bukit Timah'), ('Downtown Core'), ('Geylang'), ('Kallang'), ('Marina East'), ('Marina South'), ('Marine Parade'), ('Museum'), 
