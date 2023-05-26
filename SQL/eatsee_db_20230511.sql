@@ -56,7 +56,7 @@ CREATE TABLE gender_ref(
 );
 
 CREATE TABLE chat(
-	chatroom_id  INT    NOT NULL,
+	chatroom_id  BIGINT    NOT NULL,
 	user_id		 BIGINT    NOT NULL UNIQUE,
 	CONSTRAINT fk_chat_user_users
 		FOREIGN KEY(user_id)
