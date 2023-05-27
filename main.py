@@ -17,14 +17,14 @@ async def root():
 
 
 class User(BaseModel):
-    id: int
+    user_id: int
     telename: str
     age: int
     gender: int
 
 @app.post("/create_user/")
 async def create_user(user: User):
-    return mc.insert_user(user.id, user.telename, user.age, user.gender)
+    return mc.insert_user(user.user_id, user.telename, user.age, user.gender)
 
 
 class Telename(BaseModel):
@@ -177,15 +177,19 @@ async def delete_pax_preferences(preferences: Preferences):
 #     chatroom_id: int
 #     user_id_list: list[int]
 
-class ChatroomUsers(BaseModel):
+class UserIdList(BaseModel):
     user_id_list: list[int]
 
+@app.post("/delete_user_multiple/")
+async def delete_user_multiple(deleteusermultiple: UserIdList):
+    return mc.delete_user(deleteusermultiple.user_id_list)
+
 @app.post("/add_chatroom_user/")
-async def add_chatroom_user(addchatroomusers: ChatroomUsers):
+async def add_chatroom_user(addchatroomusers: UserIdList):
     return mc.add_chatroom_user(addchatroomusers.user_id_list)
 
 @app.post("/delete_chatroom_user/")
-async def delete_chatroom_user(dltchatroomusers: ChatroomUsers):
+async def delete_chatroom_user(dltchatroomusers: UserIdList):
     return mc.delete_chatroom_user(dltchatroomusers.user_id_list)
 
 class SelectChatroomUsers(BaseModel):
@@ -196,11 +200,11 @@ async def select_chatroom_user(selectchatroomusers: SelectChatroomUsers):
     return mc.select_chatroom_user(selectchatroomusers.chatroom_id)
 
 class SelectChatroom(BaseModel):
-    chatroom_id: int
+    user_id: int
 
 @app.post("/select_chatroom/")
 async def select_chatroom(selectchatroom: SelectChatroom):
-    return mc.select_chatroom(selectchatroom.chatroom_id)
+    return mc.select_chatroom(selectchatroom.user_id)
 
 
 # No classes
@@ -220,6 +224,10 @@ async def show_cuisine_choice():
 @app.post("/show_diet_choices/")
 async def show_diet_choice():
     return mc.show_one_choice("diet_id", "diet_res_type", "diet")
+
+@app.post("/show_pax_choices/")
+async def show_pax_choice():
+    return mc.show_one_choice("pax_id", "pax_number", "pax")
 
 @app.post("/show_all_choices/")
 async def show_all_choices():

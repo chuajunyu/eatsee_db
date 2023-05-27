@@ -64,8 +64,8 @@ class QueryManager:
         record = self.db.execute_select(query, data)
         return record
     
-    def get_user_info(self, user_id, column, table="users"):
-        query = f"SELECT {column} FROM {table} WHERE user_id = %s"
+    def get_user_info(self, user_id, select_column, table="users", user_id_column="user_id"):
+        query = f"SELECT {select_column} FROM {table} WHERE {user_id_column} = %s"
         data = (user_id,)
         record = self.db.execute_select(query, data)
         return record
@@ -116,7 +116,10 @@ class QueryManager:
         self.db.execute_change(query, data)
     
     def dequeue(self, user_id):
-        query = "DELETE FROM queue WHERE user_id = %s"
+        if isinstance(user_id, int):
+            query = "DELETE FROM queue WHERE user_id = %s"
+        elif isinstance(user_id, list):
+            query = "DELETE FROM queue WHERE user_id = ANY(%s)"
         data = (user_id,)
         self.db.execute_change(query, data)
 
