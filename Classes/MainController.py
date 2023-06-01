@@ -114,7 +114,6 @@ class MainController:
             - gender
             - preferences (x4)
         """
-
         telename = self.get_user_info(user_id, "telename")[0]["telename"]
         age = self.get_user_info(user_id, "age_ref_id", "users")[0]["age_ref_id"]
         gender = self.get_user_info(user_id, "gender_ref_id", "users")[0]["gender_ref_id"]
@@ -744,6 +743,4 @@ class MainController:
         """
         for testing QM functions
         """
-        record = self.get_user_info(2, "age_ref_id, gender_ref_id")
-        result = record
-        return result
+        return self.qm.person_match_pax([1,2,3], [2,3,4])

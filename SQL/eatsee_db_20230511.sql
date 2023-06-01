@@ -226,7 +226,7 @@ VALUES ('Chinese'), ('Malay'), ('Indian'), ('Western'), ('Korean'), ('Japanese')
 INSERT INTO diet (diet_id, diet_res_type)
 VALUES (1, 'Halal'), (2, 'No Halal'), (3, 'Vegetarian'), (4, 'No Vegetarian'), (5, 'Vegan'), (6, 'No Vegan');
 
-INSERT INTO diet (diet_id, diet_res_type)
+INSERT INTO pax (pax_id, pax_res_type)
 VALUES (2, 2), (3, 3), (4, 4), (5, 5), (6, 6);
 
 INSERT INTO area (area_name)

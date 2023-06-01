@@ -68,7 +68,10 @@ class QueryManager:
         query = f"SELECT {select_column} FROM {table} WHERE {user_id_column} = %s"
         data = (user_id,)
         record = self.db.execute_select(query, data)
-        return record
+        if record:
+            return record
+        else:
+            return None
     
     def get_info(self, column, table):
         query = f"SELECT {column} FROM {table}"
