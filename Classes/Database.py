@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.extras
 
 from .ConfigManager import ConfigManager
 
@@ -38,7 +39,7 @@ class Database(metaclass = Singleton):
         Return:
             - records: List of results from the database
         """
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute(query, *data)
         records = cursor.fetchall()
         cursor.close()

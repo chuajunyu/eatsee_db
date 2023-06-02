@@ -1,5 +1,7 @@
 venv
 dev.config
+dev.configtest
+test.config
 test.py
 *__pycache__*
 .vscode
