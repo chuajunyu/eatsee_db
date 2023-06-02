@@ -34,7 +34,6 @@ class MainController:
         Return:
             - Dictionary containing message
         """
-
         if self.qm.select_user(user_id):  # Check if user alr exists
             return {
                 "code": 405,
@@ -114,12 +113,13 @@ class MainController:
             - gender
             - preferences (x4)
         """
-
+        
         telename = self.get_user_info(user_id, "telename")[0]["telename"]
         age = self.get_user_info(user_id, "age_ref_id", "users")[0]["age_ref_id"]
         gender = self.get_user_info(user_id, "gender_ref_id", "users")[0]["gender_ref_id"]
         age_pref = self.qm.select_pref(user_id, "age_ref_id",  "age_ref")
         gender_pref = self.qm.select_pref(user_id, "gender_ref_id", "gender_ref")
+        pax_pref = self.qm.select_pref(user_id, "pax_ref_id", "pax_ref")
         cuisine_pref = self.qm.select_pref(user_id, "cuisine_ref_id", "cuisine_ref")
         diet_pref = self.qm.select_pref(user_id, "diet_ref_id", "diet_ref")
         return {
@@ -132,6 +132,7 @@ class MainController:
                 "gender": gender,
                 "age pref": [pref["age_ref_id"] for pref in age_pref],
                 "gender pref": [pref["gender_ref_id"] for pref in gender_pref],
+                "pax pref": [pref["pax_ref_id"] for pref in pax_pref],
                 "cuisine pref": [pref["cuisine_ref_id"] for pref in cuisine_pref],
                 "diet pref": [pref["diet_ref_id"] for pref in diet_pref]
             }
@@ -738,12 +739,3 @@ class MainController:
                 "message": f"User {telename[:-2]} successfully deleted. Goodbye.",
                 "data": None
             }
-    
-
-    def test_function(self):
-        """
-        for testing QM functions
-        """
-        record = self.get_user_info(2, "age_ref_id, gender_ref_id")
-        result = record
-        return result

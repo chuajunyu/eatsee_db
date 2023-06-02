@@ -9,6 +9,8 @@ drop table diet cascade;
 drop table diet_ref cascade;
 drop table gender cascade;
 drop table gender_ref cascade;
+drop table pax cascade;
+drop table pax_ref cascade;
 drop table queue cascade;
 drop table region cascade;
 drop table restaurant cascade;

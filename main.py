@@ -70,6 +70,10 @@ async def select_cuisine_preferences(user_id: UserId):
 async def select_diet_preferences(user_id: UserId):
     return mc.select_pref(user_id.user_id, "diet_ref_id", "diet_ref")
 
+@app.post("/select_pax_preferences/")
+async def select_diet_preferences(user_id: UserId):
+    return mc.select_pref(user_id.user_id, "pax_ref_id", "pax_ref")
+
 @app.post("/check_users_for_user/")
 async def check_users_for_user(user_id: UserId):
     return mc.check_table_for_user(user_id.user_id, "users")
