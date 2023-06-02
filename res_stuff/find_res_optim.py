@@ -13,39 +13,45 @@ def find_square_j(lon_input, square_center_lon_list=[103.63894748571428, 103.665
     j_lon = min(square_center_lon_list, key=lambda x:abs(x-lon_input))
     return square_center_lon_list.index(j_lon)
 
-myCoords = myCoords = [1.3, 103.7]
+def find_res_optim():
+    myCoords = myCoords = [1.3, 103.7]
 
-user_i = find_square_i(myCoords[0])
-user_j = find_square_j(myCoords[1])
+    user_i = find_square_i(myCoords[0])
+    user_j = find_square_j(myCoords[1])
 
-i_min = user_i - SQUARE_RANGE
-i_max = user_i + SQUARE_RANGE
-j_min = user_j - SQUARE_RANGE
-j_max = user_j + SQUARE_RANGE
-df_list = []
+    i_min = user_i - SQUARE_RANGE
+    i_max = user_i + SQUARE_RANGE
+    j_min = user_j - SQUARE_RANGE
+    j_max = user_j + SQUARE_RANGE
+    df_list = []
 
-for i in range(i_min, i_max+1):
-    for j in range(j_min, j_max+1):
-        df_list.append(pd.read_csv(fr'eatsee_db\res_stuff\res_data\squares\i{i}j{j}.csv'))
+    for i in range(i_min, i_max+1):
+        for j in range(j_min, j_max+1):
+            df_list.append(pd.read_csv(fr'C:\Save Data Here\Coding stuff\Projects\eatsee\eatsee_db\res_stuff\res_data\squares\i{i}j{j}.csv'))
 
-combined_df = pd.concat(df_list, ignore_index=True)
+    combined_df = pd.concat(df_list, ignore_index=True)
 
-distance=[]
-for i,n in enumerate(combined_df['name']):
-    lat = combined_df['lat'][i]
-    long = combined_df['lon'][i]
+    distance=[]
+    for i in range(len(combined_df)):
+        lat = combined_df['lat'][i]
+        long = combined_df['lon'][i]
 
-    point1 = (lat, long)
-    point2 = (myCoords[0], myCoords[1])
+        point1 = (lat, long)
+        point2 = (myCoords[0], myCoords[1])
 
-    dist = geodesic(point1, point2).kilometers
+        dist = geodesic(point1, point2).kilometers
 
-    distance.append(dist)
+        distance.append(dist)
 
-combined_df['distance'] = distance
-final_df = combined_df.loc[combined_df['distance'] <= 3]
-print(final_df)
-header = final_df.columns.tolist()
-print(header)
-print()
-print(final_df.to_dict(orient='records'))
+    combined_df['distance'] = distance
+    final_df = combined_df.loc[combined_df['distance'] <= 3]
+    print(final_df)
+    header = final_df.columns.tolist()
+    print(header)
+    print()
+    final_dict = final_df.to_dict(orient='records')
+    finalfinal = final_df[["name", "address", "cuisine", "lat", "lon", "image_url", "coordinates", "square_i", "square_j"]].copy()
+    print(finalfinal)
+    print(finalfinal.to_dict(orient='records'))
+
+    return finalfinal.to_dict(orient='records')

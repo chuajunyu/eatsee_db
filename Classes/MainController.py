@@ -1,4 +1,5 @@
 from .QueryManager import QueryManager
+from res_stuff.find_res_optim import *
 
 class MainController:
     """
@@ -706,6 +707,9 @@ class MainController:
                 "message": f"Successfully selected chatroom_id {chatroom_id}.",
                 "data": chatroom_id
             }
+    
+    def find_restaurant(self, coordinates: list, distance: int, white_cuisine: list, white_diet: list, black_cuisine_diet: list, include_all_cuisine: bool):
+        pass
 
     # DELETE ACCOUNT because no love
     def delete_user(self, user_id: int or list):
@@ -739,3 +743,9 @@ class MainController:
                 "message": f"User {telename[:-2]} successfully deleted. Goodbye.",
                 "data": None
             }
+
+    def test_function(self):
+        return {
+            'code': 200,
+            'data': find_res_optim()
+        }
