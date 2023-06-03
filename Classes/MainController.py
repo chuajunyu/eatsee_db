@@ -1,5 +1,6 @@
 from .QueryManager import QueryManager
 from res_stuff.find_res_optim import *
+import ast
 
 class MainController:
     """
@@ -708,8 +709,24 @@ class MainController:
                 "data": chatroom_id
             }
     
-    def find_restaurant(self, coordinates: list, distance: int, white_cuisine: list, white_diet: list, black_cuisine_diet: list, include_all_cuisine: bool):
-        pass
+    def find_restaurants(self, user_coords: list, distance: float, cuisine_whitelist: list, diet_whitelist: list, cuisine_diet_blacklist: list, include_all_cuisine: bool):
+        find_res_list = find_res_optim(user_coords, distance, cuisine_whitelist, diet_whitelist, cuisine_diet_blacklist, include_all_cuisine)
+        find_res_list = sorted(find_res_list, key=lambda x: x["name"])
+        find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
+        find_res_list = sorted(find_res_list, key=lambda x: x["distance"])
+        for each_res_dict in find_res_list:
+            cuisine = each_res_dict["cuisine"]
+            opening_hours = each_res_dict["opening_hours"]
+            coordinates = each_res_dict["coordinates"]
+            each_res_dict["cuisine"] = ast.literal_eval(cuisine)
+            each_res_dict["opening_hours"] = ast.literal_eval(opening_hours)
+            each_res_dict["coordinates"] = ast.literal_eval(coordinates)
+        
+        return {
+            "code": 200,
+            "message": "Restaurants found",
+            "data": find_res_list
+        }
 
     # DELETE ACCOUNT because no love
     def delete_user(self, user_id: int or list):
@@ -745,7 +762,19 @@ class MainController:
             }
 
     def test_function(self):
+        find_res_list = find_res_optim()
+        find_res_list = sorted(find_res_list, key=lambda x: x["name"])
+        find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
+        find_res_list = sorted(find_res_list, key=lambda x: x["distance"])
+        for each_res_dict in find_res_list:
+            cuisine = each_res_dict["cuisine"]
+            opening_hours = each_res_dict["opening_hours"]
+            coordinates = each_res_dict["coordinates"]
+            each_res_dict["cuisine"] = ast.literal_eval(cuisine)
+            each_res_dict["opening_hours"] = ast.literal_eval(opening_hours)
+            each_res_dict["coordinates"] = ast.literal_eval(coordinates)
+        
         return {
             'code': 200,
-            'data': find_res_optim()
+            'data': find_res_list
         }

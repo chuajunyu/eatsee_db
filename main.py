@@ -211,6 +211,18 @@ async def select_chatroom(selectchatroom: SelectChatroom):
     return mc.select_chatroom(selectchatroom.user_id)
 
 
+class FindRestaurants(BaseModel):
+    user_coords: list[float]
+    max_distance: float
+    cuisine_whitelist: list
+    diet_whitelist: list
+    cuisine_diet_blacklist: list
+    include_all_cuisines: bool
+
+@app.post("/find_restaurants/")
+async def find_restaurants(findrestaurants: FindRestaurants):
+    return mc.find_restaurants(findrestaurants.user_coords, findrestaurants.max_distance, findrestaurants.cuisine_whitelist, findrestaurants.diet_whitelist, findrestaurants.cuisine_diet_blacklist, findrestaurants.include_all_cuisines)
+
 # No classes
 
 @app.post("/show_age_choices/")
