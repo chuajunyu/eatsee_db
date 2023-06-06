@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import math
+import ast
 from math import sqrt
 from geopy.distance import geodesic
 
@@ -11,48 +12,128 @@ def find_square_j(lon_input, square_center_lon_list=[103.63894748571428, 103.665
     j_lon = min(square_center_lon_list, key=lambda x:abs(x-lon_input))
     return square_center_lon_list.index(j_lon)
 
-def find_res_optim(user_coords: list =[1.3497325999999998, 103.81146509999999], max_distance: float =2, cuisine_whitelist: list =[], diet_whitelist: list =[], cuisine_diet_blacklist: list =[], include_all_cuisines: bool =True):
+def find_closest_string_lev(string_list, string_a):
+
+    def levenshtein_distance(string1, string2):
+        if len(string1) < len(string2):
+            return levenshtein_distance(string2, string1)
+
+        if len(string2) == 0:
+            return len(string1)
+
+        previous_row = range(len(string2) + 1)
+
+        for i, char1 in enumerate(string1):
+            current_row = [i + 1]
+
+            for j, char2 in enumerate(string2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (char1 != char2)
+                current_row.append(min(insertions, deletions, substitutions))
+
+            previous_row = current_row
+
+        return previous_row[-1]
     
-    user_i = find_square_i(user_coords[0])
-    user_j = find_square_j(user_coords[1])
-    SQUARE_RANGE = math.ceil(max_distance/2.9309374423747543)
+    closest_string = None
+    closest_distance = float('inf')  # Initialize with a large value
 
-    i_min = user_i - SQUARE_RANGE
-    i_max = user_i + SQUARE_RANGE
-    j_min = user_j - SQUARE_RANGE
-    j_max = user_j + SQUARE_RANGE
-    df_list = []
+    for string in string_list:
+        distance = levenshtein_distance(string, string_a)  # Calculate the Levenshtein distance
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_string = string
 
-    for i in range(i_min, i_max+1):
-        for j in range(j_min, j_max+1):
-            try:
-                df_list.append(pd.read_csv(fr'C:\Save Data Here\Coding stuff\Projects\eatsee\eatsee_db\res_stuff\res_data\squares\i{i}j{j}.csv'))
-            except FileNotFoundError:
-                pass
+    return closest_string
+
+def find_closest_string_jaccard(string_list, string_a):
+
+    def jaccard_similarity(string1, string2):
+        set1 = set(string1.lower())
+        set2 = set(string2.lower())
+        intersection = len(set1.intersection(set2))
+        union = len(set1) + len(set2) - intersection
+        return intersection / union if union != 0 else 0
     
-    try:
-        combined_df = pd.concat(df_list, ignore_index=True)
-    except ValueError:
-        return ('No restaurants found')
+    closest_string = None
+    highest_similarity = 0.0
 
-    actual_distances=[]
-    for i in range(len(combined_df)):
-        lat = combined_df['lat'][i]
-        long = combined_df['lon'][i]
+    for string in string_list:
+        similarity = jaccard_similarity(string, string_a)  # Calculate the Jaccard similarity
+        if similarity > highest_similarity:
+            highest_similarity = similarity
+            closest_string = string
 
-        point1 = (lat, long)
-        point2 = (user_coords[0], user_coords[1])
+    return closest_string
 
-        dist = geodesic(point1, point2).kilometers
+def find_res_optim(user_coords: list =[], town: str ="tampines", max_distance: float =2, cuisine_whitelist: list =[], diet_whitelist: list =[], cuisine_diet_blacklist: list =[], include_all_cuisines: bool =True):
+    # if got Town
+    town = town.upper()
+    if (len(town) == 0) or (town == "NONE"):
+        town = False
+    else:
+        town_info = pd.read_csv(r'res_stuff\res_data\town_info.csv')
+        town_list = list(town_info["town"])
+        if town not in town_list:
+            town = find_closest_string_jaccard(town_list, town)
 
-        actual_distances.append(dist)
+    # if got Coords
+    if user_coords:
+        user_i = find_square_i(user_coords[0])
+        user_j = find_square_j(user_coords[1])
+        SQUARE_RANGE = math.ceil(max_distance/2.9309374423747543)
+        
+        i_min = user_i - SQUARE_RANGE
+        i_max = user_i + SQUARE_RANGE
+        j_min = user_j - SQUARE_RANGE
+        j_max = user_j + SQUARE_RANGE
 
-    combined_df['distance'] = actual_distances
-    # filter max_distance
-    final_df = combined_df.loc[combined_df['distance'] <= max_distance]
+        df_list = []
+        for i in range(i_min, i_max+1):
+            for j in range(j_min, j_max+1):
+                try:
+                    df_list.append(pd.read_csv(fr'res_stuff\res_data\squares\i{i}j{j}.csv'))
+                except FileNotFoundError:
+                    pass
+        
+        try:
+            combined_df = pd.concat(df_list, ignore_index=True)
+        except ValueError:
+            return False
+        
+        if town:
+            combined_df = combined_df.loc[combined_df['nearest_town'] == town]
+        
+        try:
+            actual_distances=[]
+            for i in range(len(combined_df)):
+                lat = combined_df['lat'][i]
+                long = combined_df['lon'][i]
+
+                point1 = (lat, long)
+                point2 = (user_coords[0], user_coords[1])
+
+                dist = geodesic(point1, point2).kilometers
+
+                actual_distances.append(dist)
+        except KeyError:
+            return False
+
+        combined_df['distance'] = actual_distances
+        # filter max_distance
+        final_df = combined_df.loc[combined_df['distance'] < max_distance]
+    
+    else:
+        if town:
+            town_name = town.replace(" ", "_")
+            final_df = pd.read_csv(fr'res_stuff\res_data\towns\{town_name}.csv')
+
+        else:
+            return False
+
+
     # filter cuisinine whitelist
-    def to_lower(string1):
-        return string1.lower()
     if cuisine_whitelist:
         if include_all_cuisines:
             final_df = final_df.loc[final_df['cuisine'].apply(lambda x: all(cuisine.lower() in x.lower() for cuisine in cuisine_whitelist))]
@@ -66,12 +147,6 @@ def find_res_optim(user_coords: list =[1.3497325999999998, 103.81146509999999], 
         black_diets = ~final_df['cuisine'].str.contains('|'.join(cuisine_diet_blacklist))
         final_df = final_df.loc[black_diets]
 
-
-    print(final_df)
-    header = final_df.columns.tolist()
-    print(header)
     final_dict = final_df.to_dict(orient='records')
 
     return final_dict
-
-# find_res_optim()

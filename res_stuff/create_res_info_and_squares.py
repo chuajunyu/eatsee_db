@@ -75,7 +75,7 @@ def create_restaurant_info_and_squares(print_dataframes=True, print_measurements
         j_lon = min(square_center_lon_list, key=lambda x:abs(x-lon_input))
         return square_center_lon_list.index(j_lon)
 
-    # HELPER CONATINERS
+    # HELPER INFO
     name_list = []
     coords_list = []
     square_i_list = []
@@ -85,9 +85,19 @@ def create_restaurant_info_and_squares(print_dataframes=True, print_measurements
     rating_list = []
     image_url_list = []
     open_hour_list = []
-    counter2 = 0
+    nearest_town_list = []
 
-    # MODIFY INFO
+    # MODIFY TOWN_INFO.CSV
+    town_list = []
+    town_dict = {}
+    town_df = pd.read_csv(fr'eatsee_db\res_stuff\res_data\town_info.csv')
+    # town_list = list(town_df['town'])
+    for i,name in enumerate(town_df['town']):
+        town_list.append(name)
+        coordinates = ast.literal_eval(town_df['coordinates'][i])
+        town_dict[name] = coordinates
+
+    # MODIFY RES_INFO.CSV
     for i,name in enumerate(restaurant_info['name']):
         # NAMES
         address = restaurant_info['address'][i]
@@ -110,6 +120,10 @@ def create_restaurant_info_and_squares(print_dataframes=True, print_measurements
         square_j = find_square_j(long)
         square_i_list.append(square_i)
         square_j_list.append(square_j)
+
+        # NEAREST TOWN
+        nearest_town = min(town_list, key=lambda x:abs(geodesic(coordinates, town_dict[x]).kilometers))
+        nearest_town_list.append(nearest_town)
 
         # CUISINES
         cuisines = restaurant_info['cuisine'][i]
@@ -145,6 +159,7 @@ def create_restaurant_info_and_squares(print_dataframes=True, print_measurements
     restaurant_info['coordinates'] = coords_list
     restaurant_info['square_i'] = square_i_list
     restaurant_info['square_j'] = square_j_list
+    restaurant_info['nearest_town'] = nearest_town_list
     restaurant_info['cuisine'] = cuisine_list
     restaurant_info['image_url'] = image_url_list
     restaurant_info['rating'] = rating_list
@@ -174,9 +189,20 @@ def create_restaurant_info_and_squares(print_dataframes=True, print_measurements
                 new_df = restaurant_info.loc[all_conditions]
                 new_df.to_csv(fr"eatsee_db\res_stuff\res_data\squares\i{square_i}j{square_j}.csv", index=False, header=True)
 
+        # CREATE TOWNS
+        try:
+            os.makedirs(r"eatsee_db\res_stuff\res_data\towns")
+        except FileExistsError:
+            pass
+        for town in town_list:
+            new_df = restaurant_info.loc[restaurant_info['nearest_town'] == town]
+            town_name = town.replace(" ", "_")
+            new_df.to_csv(fr"eatsee_db\res_stuff\res_data\towns\{town_name}.csv", index=False, header=True)
+
+
     # TESTING
     # for i,n in enumerate(restaurant_info['address']):
     #     if not isinstance(n, str) or not n:
     #         pass
 
-create_restaurant_info_and_squares(print_dataframes=False, print_measurements=True, create_csv_files=False)
+create_restaurant_info_and_squares(print_dataframes=True, print_measurements=True, create_csv_files=True)

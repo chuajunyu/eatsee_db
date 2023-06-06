@@ -592,12 +592,15 @@ class MainController:
         add_chatroom_user_info = self.add_chatroom_user(matches_P_user_id_list_final)
         self.qm.dequeue(matches_P_user_id_list_final)
 
+        # restaurant_info = self.find_restaurants()
+
         return {
             "code": 200,
             "message": "Match found. Dequeued users and added them to chatroom.",
             "data": {"user_ids and telenames found": final_id_and_names,
                      "user_id_list": add_chatroom_user_info["data"]["user_id_list"],
-                     "chatroom": add_chatroom_user_info["data"]["chatroom_id"]
+                     "chatroom": add_chatroom_user_info["data"]["chatroom_id"],
+                     "restaurants": restaurant_info
             }
         }
     
@@ -709,23 +712,79 @@ class MainController:
                 "data": chatroom_id
             }
     
-    def find_restaurants(self, user_coords: list, distance: float, cuisine_whitelist: list, diet_whitelist: list, cuisine_diet_blacklist: list, include_all_cuisine: bool):
-        find_res_list = find_res_optim(user_coords, distance, cuisine_whitelist, diet_whitelist, cuisine_diet_blacklist, include_all_cuisine)
-        find_res_list = sorted(find_res_list, key=lambda x: x["name"])
-        find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
-        find_res_list = sorted(find_res_list, key=lambda x: x["distance"])
-        for each_res_dict in find_res_list:
-            cuisine = each_res_dict["cuisine"]
-            opening_hours = each_res_dict["opening_hours"]
-            coordinates = each_res_dict["coordinates"]
-            each_res_dict["cuisine"] = ast.literal_eval(cuisine)
-            each_res_dict["opening_hours"] = ast.literal_eval(opening_hours)
-            each_res_dict["coordinates"] = ast.literal_eval(coordinates)
-        
-        return {
+    def find_common_preferences(self, user_id_list, column, table):
+        list_1 = self.select_pref(user_id_list[0], column, table)["data"]
+        for each_user in user_id_list[1:]:
+            list_1 = list(set(list_1).intersection(self.select_pref(each_user, column, table)["data"]))
+        return list_1
+    
+    def find_restaurants(self, user_coords: list, town :str, distance: float, cuisine_whitelist: list, diet_whitelist: list, cuisine_diet_blacklist: list, include_all_cuisine: bool):
+        find_res_list = find_res_optim(user_coords=user_coords, town=town, max_distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=cuisine_diet_blacklist, include_all_cuisines=False)
+        if find_res_list:
+            find_res_list = sorted(find_res_list, key=lambda x: x["name"])
+            find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
+            try:
+                find_res_list = sorted(find_res_list, key=lambda x: x["distance"])
+            except KeyError:
+                pass
+            for each_res_dict in find_res_list:
+                cuisine = each_res_dict["cuisine"]
+                opening_hours = each_res_dict["opening_hours"]
+                coordinates = each_res_dict["coordinates"]
+                each_res_dict["cuisine"] = ast.literal_eval(cuisine)
+                each_res_dict["opening_hours"] = ast.literal_eval(opening_hours)
+                each_res_dict["coordinates"] = ast.literal_eval(coordinates)
+            
+            # for each in find_res_list:
+            #     print(each)
+            #     print()
+            return {
+                "code": 200,
+                "message": "Restaurants found",
+                "data": find_res_list
+            }
+        else:
+            return {
+                "code": 404,
+                "message": "Restaurants not found",
+                "data": None
+            }
+    
+    def find_restaurants_together(self, user_id_list, user_coords, town, distance):
+        cuisine_whitelist = []
+        diet_whitelist = []
+        diet_blacklist = []
+        cuisine_dict = self.show_one_choice("cuisine_id", "cuisine", "cuisine")["data"]["cuisine"]
+        diet_dict = self.show_one_choice("diet_id", "diet_res_type", "diet")["data"]["diet"]
+
+        common_cuisine = self.find_common_preferences(user_id_list, "cuisine_ref_id", "cuisine_ref")
+        common_diet = sorted(self.find_common_preferences(user_id_list, "diet_ref_id", "diet_ref"))
+
+        for cuisine in common_cuisine:
+            cuisine_whitelist.append(cuisine_dict[cuisine])
+
+        for diet in common_diet:
+            if diet%2 == 1:
+                common_diet.remove(diet+1)
+                diet_whitelist.append(diet_dict[diet])
+            else:
+                diet_blacklist.append(diet_dict[diet-1])
+
+        print(cuisine_whitelist)
+        print(diet_whitelist)
+        print(diet_blacklist)
+
+        restaurant_info = self.find_restaurants(user_coords=user_coords, town=town, distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
+        if restaurant_info:
+            return {
             "code": 200,
-            "message": "Restaurants found",
-            "data": find_res_list
+            "message": "Restaurants found.",
+            "data": restaurant_info
+            }
+        return {
+            "code": 400,
+            "message": "No restaurants found.",
+            "data": None
         }
 
     # DELETE ACCOUNT because no love
@@ -762,19 +821,29 @@ class MainController:
             }
 
     def test_function(self):
-        find_res_list = find_res_optim()
-        find_res_list = sorted(find_res_list, key=lambda x: x["name"])
-        find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
-        find_res_list = sorted(find_res_list, key=lambda x: x["distance"])
-        for each_res_dict in find_res_list:
-            cuisine = each_res_dict["cuisine"]
-            opening_hours = each_res_dict["opening_hours"]
-            coordinates = each_res_dict["coordinates"]
-            each_res_dict["cuisine"] = ast.literal_eval(cuisine)
-            each_res_dict["opening_hours"] = ast.literal_eval(opening_hours)
-            each_res_dict["coordinates"] = ast.literal_eval(coordinates)
-        
-        return {
-            'code': 200,
-            'data': find_res_list
-        }
+        user_id_list = [1,2]
+        cuisine_whitelist = []
+        diet_whitelist = []
+        diet_blacklist = []
+        cuisine_dict = self.show_one_choice("cuisine_id", "cuisine", "cuisine")["data"]["cuisine"]
+        diet_dict = self.show_one_choice("diet_id", "diet_res_type", "diet")["data"]["diet"]
+
+        common_cuisine = self.find_common_preferences(user_id_list, "cuisine_ref_id", "cuisine_ref")
+        common_diet = sorted(self.find_common_preferences(user_id_list, "diet_ref_id", "diet_ref"))
+
+        for cuisine in common_cuisine:
+            cuisine_whitelist.append(cuisine_dict[cuisine])
+
+        for diet in common_diet:
+            if diet%2 == 1:
+                common_diet.remove(diet+1)
+                diet_whitelist.append(diet_dict[diet])
+            else:
+                diet_blacklist.append(diet_dict[diet-1])
+
+        print(cuisine_whitelist)
+        print(diet_whitelist)
+        print(diet_blacklist)
+
+        restaurant_info = self.find_restaurants(user_coords=[1.3497325999999998, 103.81146509999999], town="", distance=3, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
+        return restaurant_info

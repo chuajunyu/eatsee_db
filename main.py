@@ -71,7 +71,7 @@ async def select_diet_preferences(user_id: UserId):
     return mc.select_pref(user_id.user_id, "diet_ref_id", "diet_ref")
 
 @app.post("/select_pax_preferences/")
-async def select_diet_preferences(user_id: UserId):
+async def select_pax_preferences(user_id: UserId):
     return mc.select_pref(user_id.user_id, "pax_ref_id", "pax_ref")
 
 @app.post("/check_users_for_user/")
@@ -213,6 +213,7 @@ async def select_chatroom(selectchatroom: SelectChatroom):
 
 class FindRestaurants(BaseModel):
     user_coords: list[float]
+    town: str
     max_distance: float
     cuisine_whitelist: list
     diet_whitelist: list
@@ -221,7 +222,19 @@ class FindRestaurants(BaseModel):
 
 @app.post("/find_restaurants/")
 async def find_restaurants(findrestaurants: FindRestaurants):
-    return mc.find_restaurants(findrestaurants.user_coords, findrestaurants.max_distance, findrestaurants.cuisine_whitelist, findrestaurants.diet_whitelist, findrestaurants.cuisine_diet_blacklist, findrestaurants.include_all_cuisines)
+    return mc.find_restaurants(findrestaurants.user_coords, findrestaurants.town, findrestaurants.max_distance, findrestaurants.cuisine_whitelist, findrestaurants.diet_whitelist, findrestaurants.cuisine_diet_blacklist, findrestaurants.include_all_cuisines)
+
+
+class FindRestaurantsTgt(BaseModel):
+    user_id_list: list[int]
+    user_coords: list[float]
+    town: str
+    max_distance: float
+
+@app.post("/find_restaurants_tgt/")
+async def find_restaurants_tgt(findrestaurantstgt: FindRestaurantsTgt):
+    return mc.find_restaurants_together(findrestaurantstgt.user_id_list, findrestaurantstgt.user_coords, findrestaurantstgt.town, findrestaurantstgt.max_distance)
+
 
 # No classes
 
