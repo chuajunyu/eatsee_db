@@ -212,7 +212,7 @@ async def select_chatroom(selectchatroom: SelectChatroom):
 
 
 class FindRestaurants(BaseModel):
-    user_coords: list[float]
+    user_coords: list
     town: str
     max_distance: float
     cuisine_whitelist: list
@@ -227,7 +227,7 @@ async def find_restaurants(findrestaurants: FindRestaurants):
 
 class FindRestaurantsTgt(BaseModel):
     user_id_list: list[int]
-    user_coords: list[float]
+    user_coords: list
     town: str
     max_distance: float
 

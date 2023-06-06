@@ -432,9 +432,9 @@ class MainController:
 
         Return:
             Dictionary["code"] = 200 if user successfully queued, 404 if user already in queue.
-            Dictionary["data"] = {"user_ids and telenames found": list(tuple(user_id1, telename1), tuple(user_id2, telename2), ...),    # 1 tuple for each compatible user found
-                                  "user_id_list":                 list(user_id1, user_id2, ...),                                        # including Main user's user_id
-                                  "chatroom":                     int(chatroom_id)}
+            Dictionary["data"] = {"final_id_and_names_exclusive": [(user_id1, telename1), ... , (user_idN, telenameN)],
+                                  "final_id_and_names_inclusive": [(user_id1, telename1), ... , (user_idN, telenameN), (user_id_main, telename_main)],
+                                  "chatroom": chatroom_id}
         """
 
         telename = self.get_user_info(user_id, "telename")[0]["telename"]
@@ -584,9 +584,10 @@ class MainController:
             if row["pax_ref_id"] == final_pax and counter < final_pax:
                 counter += 1
                 final_matches.append(row["user_ref_id"])
-                print(final_matches)
 
-        final_id_and_names = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in final_matches]
+        final_id_and_names_exclusive = [(match_id, self.qm.get_user_telename(match_id)[0]["telename"]) for match_id in final_matches]
+        final_id_and_names_inclusive = list(final_id_and_names_exclusive)
+        final_id_and_names_inclusive.append((user_id, telename))
         matches_P_user_id_list_final = matches_P_user_id_list[:final_pax-1]
         matches_P_user_id_list_final.append(user_id)
         add_chatroom_user_info = self.add_chatroom_user(matches_P_user_id_list_final)
@@ -597,10 +598,10 @@ class MainController:
         return {
             "code": 200,
             "message": "Match found. Dequeued users and added them to chatroom.",
-            "data": {"user_ids and telenames found": final_id_and_names,
-                     "user_id_list": add_chatroom_user_info["data"]["user_id_list"],
+            "data": {"final_id_and_names_exclusive": final_id_and_names_exclusive,
+                     "final_id_and_names_inclusive": final_id_and_names_inclusive,
                      "chatroom": add_chatroom_user_info["data"]["chatroom_id"],
-                     "restaurants": restaurant_info
+                     "restaurants": None
             }
         }
     
@@ -751,6 +752,12 @@ class MainController:
             }
     
     def find_restaurants_together(self, user_id_list, user_coords, town, distance):
+        if isinstance(user_coords[0], list):
+            total_coords = len(user_coords)
+            avg_lat = sum(coord[0] for coord in user_coords) / total_coords
+            avg_lon = sum(coord[1] for coord in user_coords) / total_coords
+            user_coords = [avg_lat, avg_lon]
+
         cuisine_whitelist = []
         diet_whitelist = []
         diet_blacklist = []
