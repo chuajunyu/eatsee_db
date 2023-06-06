@@ -600,7 +600,7 @@ class MainController:
             "data": {"user_ids and telenames found": final_id_and_names,
                      "user_id_list": add_chatroom_user_info["data"]["user_id_list"],
                      "chatroom": add_chatroom_user_info["data"]["chatroom_id"],
-                     "restaurants": restaurant_info
+                    #  "restaurants": restaurant_info
             }
         }
     
@@ -773,6 +773,10 @@ class MainController:
         print(cuisine_whitelist)
         print(diet_whitelist)
         print(diet_blacklist)
+
+        lat_centre = sum([coord[0] for coord in user_coords]) / len(user_coords)
+        lon_centre = sum([coord[1] for coord in user_coords]) / len(user_coords)
+        user_coords = (lat_centre, lon_centre)
 
         restaurant_info = self.find_restaurants(user_coords=user_coords, town=town, distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
         if restaurant_info:
