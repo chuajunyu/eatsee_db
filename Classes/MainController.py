@@ -537,6 +537,11 @@ class MainController:
                     }
                 else:
                     penultimate_matches = matches_D
+            
+            else:
+                penultimate_matches = matches_C
+
+        
         
         # Match P: find users with same pax preferences as Main user
 
