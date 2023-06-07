@@ -732,7 +732,9 @@ class MainController:
                 avg_lon = sum(coord[1] for coord in user_coords) / total_coords
                 user_coords = [avg_lat, avg_lon]
             
-        find_res_list = find_res_optim(user_coords=user_coords, town=town, max_distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=cuisine_diet_blacklist, include_all_cuisines=False)
+        town_n_restaurant_info = find_res_optim(user_coords=user_coords, town=town, max_distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=cuisine_diet_blacklist, include_all_cuisines=False)
+        town_info = town_n_restaurant_info["town"]
+        find_res_list = town_n_restaurant_info["restaurant"]
         if find_res_list:
             find_res_list = sorted(find_res_list, key=lambda x: x["name"])
             find_res_list = sorted(find_res_list, key=lambda x: x["rating"], reverse=True)
@@ -754,7 +756,10 @@ class MainController:
             return {
                 "code": 200,
                 "message": "Restaurants found",
-                "data": find_res_list
+                "data": {
+                    "town": town_info,
+                    "restaurant": find_res_list
+                }
             }
         else:
             return {
@@ -787,12 +792,17 @@ class MainController:
         print(diet_whitelist)
         print(diet_blacklist)
 
-        restaurant_info = self.find_restaurants(user_coords=user_coords, town=town, distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
+        town_n_restaurant_info = self.find_restaurants(user_coords=user_coords, town=town, distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
+        town_info = town_n_restaurant_info["town"]
+        restaurant_info = town_n_restaurant_info["restaurant"]
         if restaurant_info:
             return {
-            "code": 200,
-            "message": "Restaurants found.",
-            "data": restaurant_info
+                "code": 200,
+                "message": "Restaurants found.",
+                "data": {
+                    "town": town_info,
+                    "restaurant": restaurant_info
+                }
             }
         return {
             "code": 400,
