@@ -786,10 +786,6 @@ class MainController:
         print(diet_whitelist)
         print(diet_blacklist)
 
-        lat_centre = sum([coord[0] for coord in user_coords]) / len(user_coords)
-        lon_centre = sum([coord[1] for coord in user_coords]) / len(user_coords)
-        user_coords = (lat_centre, lon_centre)
-
         restaurant_info = self.find_restaurants(user_coords=user_coords, town=town, distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=diet_blacklist, include_all_cuisine=False)["data"]
         if restaurant_info:
             return {
