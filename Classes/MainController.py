@@ -725,11 +725,12 @@ class MainController:
         return list_1
     
     def find_restaurants(self, user_coords: list, town :str, distance: float, cuisine_whitelist: list, diet_whitelist: list, cuisine_diet_blacklist: list, include_all_cuisine: bool):
-        if isinstance(user_coords[0], list):
-            total_coords = len(user_coords)
-            avg_lat = sum(coord[0] for coord in user_coords) / total_coords
-            avg_lon = sum(coord[1] for coord in user_coords) / total_coords
-            user_coords = [avg_lat, avg_lon]
+        if user_coords:
+            if isinstance(user_coords[0], list):
+                total_coords = len(user_coords)
+                avg_lat = sum(coord[0] for coord in user_coords) / total_coords
+                avg_lon = sum(coord[1] for coord in user_coords) / total_coords
+                user_coords = [avg_lat, avg_lon]
             
         find_res_list = find_res_optim(user_coords=user_coords, town=town, max_distance=distance, cuisine_whitelist=cuisine_whitelist, diet_whitelist=diet_whitelist, cuisine_diet_blacklist=cuisine_diet_blacklist, include_all_cuisines=False)
         if find_res_list:
