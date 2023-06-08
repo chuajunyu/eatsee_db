@@ -149,4 +149,12 @@ def find_res_optim(user_coords: list =[], town: str ="tampines", max_distance: f
 
     final_dict = final_df.to_dict(orient='records')
 
-    return final_dict
+    final_result = {}
+    if town:
+        final_result['town'] = town
+    else:
+        final_result['town'] = None
+
+    final_result['restaurant'] = final_dict
+
+    return final_result
